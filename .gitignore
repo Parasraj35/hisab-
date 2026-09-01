@@ -1,0 +1,19 @@
+# Environment
+.env
+
+# Node
+backend/node_modules/
+backend/*.log
+
+# Flutter/Dart
+app/.dart_tool/
+app/.flutter-plugins-dependencies
+app/build/
+app/.pub-cache/
+app/.pub/
+app/android/local.properties
+app/**/*.iml
+
+# IDE
+.idea/
+.vscode/

@@ -1,0 +1,44 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: hisab-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: hisab
+    volumes:
+      - mongo-data:/data/db
+    # Only exposed so you can inspect the DB from the host with Compass.
+    # Drop this block in production — the API reaches it over the internal network.
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  api:
+    build:
+      context: ./backend
+    container_name: hisab-api
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      PORT: 5000
+      NODE_ENV: production
+      # Service name, not localhost — inside the network `mongo` is the host.
+      MONGO_URI: mongodb://mongo:27017/hisab
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?set JWT_ACCESS_SECRET in .env}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?set JWT_REFRESH_SECRET in .env}
+      ACCESS_TOKEN_TTL: 15m
+      REFRESH_TOKEN_TTL: 30d
+      OTP_TTL_SECONDS: 300
+      OTP_DEV_ECHO: "false"
+    ports:
+      - "5000:5000"
+
+volumes:
+  mongo-data:
