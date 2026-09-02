@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/clay.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../shared/widgets/app_bottom_nav.dart';
 import '../../../shared/widgets/empty_state.dart';
@@ -47,7 +48,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   }
 
   /// Groups a flat, date-sorted list into day sections.
-  List<(DateTime, List<TransactionItem>)> _groupByDay(List<TransactionItem> items) {
+  List<(DateTime, List<TransactionItem>)> _groupByDay(
+      List<TransactionItem> items) {
     final groups = <(DateTime, List<TransactionItem>)>[];
     for (final item in items) {
       final day = DateTime(item.date.year, item.date.month, item.date.day);
@@ -71,7 +73,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.canPop() ? context.pop() : context.go('/dashboard'),
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go('/dashboard'),
         ),
         title: const Text('History'),
         actions: [
@@ -89,7 +92,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             accounts: accounts?.accounts ?? const <Account>[],
             onChanged: controller.applyFilter,
           ),
-
           if (state.items.isNotEmpty)
             Padding(
               padding: const EdgeInsets.fromLTRB(
@@ -116,7 +118,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                 ],
               ),
             ),
-
           Expanded(
             child: Builder(
               builder: (context) {
@@ -130,8 +131,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                 if (state.isEmpty) {
                   return EmptyState(
                     title: 'No transactions found',
-                    message:
-                        "You don't have any transactions for this period.",
+                    message: "You don't have any transactions for this period.",
                     actionLabel: 'Add Transaction',
                     onAction: () => context.push('/add-expense'),
                   );
@@ -151,11 +151,14 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                       if (index == groups.length) {
                         if (state.loadingMore) {
                           return const Padding(
-                            padding: EdgeInsets.symmetric(vertical: AppSpacing.xl),
+                            padding:
+                                EdgeInsets.symmetric(vertical: AppSpacing.xl),
                             child: Center(
                               child: SizedBox(
-                                  height: 22, width: 22,
-                                  child: CircularProgressIndicator(strokeWidth: 2.2)),
+                                  height: 22,
+                                  width: 22,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2.2)),
                             ),
                           );
                         }
@@ -189,7 +192,9 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(Fmt.dayHeader(day),
-                                    style: Theme.of(context).textTheme.bodySmall!
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall!
                                         .copyWith(fontWeight: FontWeight.w600)),
                                 Text(
                                   Fmt.signed(dayNet),
@@ -211,7 +216,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                               color: Theme.of(context).cardTheme.color,
                               borderRadius:
                                   BorderRadius.circular(AppSpacing.cardRadius),
-                              border: Border.all(color: context.cBorder),
+                              boxShadow: Clay.shadows(context.cBackground,
+                                  small: true),
                             ),
                             child: Column(
                               children: items.asMap().entries.map((entry) {
@@ -407,7 +413,7 @@ class _FilterPill extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).cardTheme.color,
           borderRadius: BorderRadius.circular(AppSpacing.fieldRadius),
-          border: Border.all(color: context.cBorder),
+          boxShadow: Clay.shadows(context.cBackground, small: true),
         ),
         child: Row(
           children: [

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/clay.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/utils/icon_map.dart';
 import '../../../core/utils/validators.dart';
@@ -71,8 +72,8 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
       initialEntryMode: DatePickerEntryMode.calendarOnly,
     );
     if (picked != null) {
-      setState(() => _date =
-          DateTime(picked.year, picked.month, picked.day, _date.hour, _date.minute));
+      setState(() => _date = DateTime(
+          picked.year, picked.month, picked.day, _date.hour, _date.minute));
     }
   }
 
@@ -119,10 +120,12 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
     final currency = accountsAsync.valueOrNull?.currency ?? 'PKR';
 
     if (_from == null && accounts.isNotEmpty) {
-      _from = accounts.firstWhere((a) => a.isDefault, orElse: () => accounts.first);
+      _from =
+          accounts.firstWhere((a) => a.isDefault, orElse: () => accounts.first);
     }
     if (_to == null && accounts.length > 1) {
-      _to = accounts.firstWhere((a) => a.id != _from?.id, orElse: () => accounts.last);
+      _to = accounts.firstWhere((a) => a.id != _from?.id,
+          orElse: () => accounts.last);
     }
 
     final warning = _balanceWarning;
@@ -139,8 +142,8 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
             : Form(
                 key: _formKey,
                 child: ListView(
-                  padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.xl,
-                      AppSpacing.xl, AppSpacing.xxxl),
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.xl,
+                      AppSpacing.xl, AppSpacing.xl, AppSpacing.xxxl),
                   children: [
                     _AccountSlot(
                       label: 'From',
@@ -157,14 +160,12 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                       onChanged: (a) => setState(() => _to = a),
                     ),
                     const SizedBox(height: AppSpacing.xl),
-
                     AmountField(
                       controller: _amount,
                       currency: currency,
                       accentColor: AppColors.forest,
                       validator: Validators.amount,
                     ),
-
                     if (warning != null) ...[
                       const SizedBox(height: AppSpacing.md),
                       Container(
@@ -184,17 +185,16 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                             Expanded(
                               child: Text(warning,
                                   style: TextStyle(
-                                      fontSize: 12, color: context.cTextPrimary)),
+                                      fontSize: 12,
+                                      color: context.cTextPrimary)),
                             ),
                           ],
                         ),
                       ),
                     ],
                     const SizedBox(height: AppSpacing.xl),
-
                     _DateRow(date: _date, onTap: _pickDate),
                     const SizedBox(height: AppSpacing.xl),
-
                     AppTextField(
                       label: 'Note (Optional)',
                       controller: _note,
@@ -203,7 +203,6 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                       textCapitalization: TextCapitalization.sentences,
                     ),
                     const SizedBox(height: AppSpacing.xxxl),
-
                     PrimaryButton(
                       label: 'Transfer Now',
                       loading: _saving,
@@ -255,7 +254,8 @@ class _AccountSlot extends StatelessWidget {
                       const SizedBox(height: AppSpacing.sm),
                       ...options.map((a) => ListTile(
                             leading: CircleAvatar(
-                              backgroundColor: AppColors.forest.withOpacity(0.10),
+                              backgroundColor:
+                                  AppColors.forest.withOpacity(0.10),
                               child: Icon(iconForAccountType(a.type),
                                   size: 19, color: AppColors.forest),
                             ),
@@ -282,7 +282,7 @@ class _AccountSlot extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).cardTheme.color,
           borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-          border: Border.all(color: context.cBorder),
+          boxShadow: Clay.shadows(context.cBackground, small: true),
         ),
         child: Row(
           children: [
@@ -309,12 +309,15 @@ class _AccountSlot extends StatelessWidget {
                   Text(label, style: Theme.of(context).textTheme.bodySmall),
                   const SizedBox(height: 2),
                   Text(account?.name ?? 'Select account',
-                      style: Theme.of(context).textTheme.titleMedium!
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium!
                           .copyWith(fontSize: 14)),
                   if (account != null) ...[
                     const SizedBox(height: 2),
                     Text(
-                      Fmt.currency(account!.currentBalance, code: account!.currency),
+                      Fmt.currency(account!.currentBalance,
+                          code: account!.currency),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
@@ -350,7 +353,8 @@ class _SwapDivider extends StatelessWidget {
               onTap: onSwap,
               child: const Padding(
                 padding: EdgeInsets.all(8),
-                child: Icon(Icons.swap_vert_rounded, size: 20, color: Colors.white),
+                child: Icon(Icons.swap_vert_rounded,
+                    size: 20, color: Colors.white),
               ),
             ),
           ),
@@ -383,7 +387,7 @@ class _DateRow extends StatelessWidget {
             decoration: BoxDecoration(
               color: Theme.of(context).cardTheme.color,
               borderRadius: BorderRadius.circular(AppSpacing.fieldRadius),
-              border: Border.all(color: context.cBorder),
+              boxShadow: Clay.shadows(context.cBackground, small: true),
             ),
             child: Row(
               children: [
@@ -414,16 +418,19 @@ class _NeedsTwoAccounts extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.swap_horiz_rounded, size: 48, color: context.cTextTertiary),
+            Icon(Icons.swap_horiz_rounded,
+                size: 48, color: context.cTextTertiary),
             const SizedBox(height: AppSpacing.lg),
             Text('You need two accounts',
                 style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: AppSpacing.sm),
-            Text('Transfers move money between your own accounts, so add one more first.',
+            Text(
+                'Transfers move money between your own accounts, so add one more first.',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: AppSpacing.xxl),
-            PrimaryButton(label: 'Go to Accounts', onPressed: onAdd, expanded: false),
+            PrimaryButton(
+                label: 'Go to Accounts', onPressed: onAdd, expanded: false),
           ],
         ),
       ),

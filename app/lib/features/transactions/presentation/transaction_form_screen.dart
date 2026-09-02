@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/clay.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/utils/icon_map.dart';
 import '../../../core/utils/validators.dart';
@@ -27,7 +28,8 @@ class TransactionFormScreen extends ConsumerStatefulWidget {
   bool get isExpense => type == 'expense';
 
   @override
-  ConsumerState<TransactionFormScreen> createState() => _TransactionFormScreenState();
+  ConsumerState<TransactionFormScreen> createState() =>
+      _TransactionFormScreenState();
 }
 
 class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
@@ -61,9 +63,8 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
       initialEntryMode: DatePickerEntryMode.calendarOnly,
       builder: (context, child) => Theme(
         data: Theme.of(context).copyWith(
-          colorScheme: Theme.of(context)
-              .colorScheme
-              .copyWith(primary: AppColors.forest),
+          colorScheme:
+              Theme.of(context).colorScheme.copyWith(primary: AppColors.forest),
         ),
         child: child!,
       ),
@@ -106,8 +107,8 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
       ref.invalidate(accountsProvider);
 
       if (!mounted) return;
-      showAppSnack(context,
-          widget.isExpense ? 'Expense saved' : 'Income saved');
+      showAppSnack(
+          context, widget.isExpense ? 'Expense saved' : 'Income saved');
       context.pop(true);
     } catch (e) {
       if (mounted) showAppSnack(context, e.toString(), isError: true);
@@ -125,7 +126,8 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
     // Default to the user's default account once accounts land.
     final accounts = accountsAsync.valueOrNull?.accounts ?? const <Account>[];
     if (_account == null && accounts.isNotEmpty) {
-      _account = accounts.firstWhere((a) => a.isDefault, orElse: () => accounts.first);
+      _account =
+          accounts.firstWhere((a) => a.isDefault, orElse: () => accounts.first);
     }
 
     return Scaffold(
@@ -138,7 +140,8 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.more_vert),
-            onPressed: () => showAppSnack(context, 'Recurring options arrive in batch 6'),
+            onPressed: () =>
+                showAppSnack(context, 'Recurring options arrive in batch 6'),
           ),
         ],
       ),
@@ -156,12 +159,12 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                 validator: Validators.amount,
               ),
               const SizedBox(height: AppSpacing.xl),
-
               categoriesAsync.when(
                 loading: () => const _FieldSkeleton(label: 'Category'),
                 error: (e, _) => _FieldError(
                   label: 'Category',
-                  onRetry: () => ref.invalidate(categoriesProvider(widget.type)),
+                  onRetry: () =>
+                      ref.invalidate(categoriesProvider(widget.type)),
                 ),
                 data: (categories) => AppDropdown<Category>(
                   label: 'Category',
@@ -179,7 +182,6 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                 ),
               ),
               const SizedBox(height: AppSpacing.xl),
-
               accountsAsync.when(
                 loading: () => const _FieldSkeleton(label: 'Account'),
                 error: (e, _) => _FieldError(
@@ -203,10 +205,8 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                 ),
               ),
               const SizedBox(height: AppSpacing.xl),
-
               _DateField(date: _date, onTap: _pickDate),
               const SizedBox(height: AppSpacing.xl),
-
               AppTextField(
                 label: 'Note (Optional)',
                 controller: _note,
@@ -215,7 +215,6 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                 textCapitalization: TextCapitalization.sentences,
               ),
               const SizedBox(height: AppSpacing.xxxl),
-
               PrimaryButton(
                 label: widget.isExpense ? 'Save Expense' : 'Save Income',
                 loading: _saving,
@@ -253,7 +252,7 @@ class _DateField extends StatelessWidget {
             decoration: BoxDecoration(
               color: Theme.of(context).cardTheme.color,
               borderRadius: BorderRadius.circular(AppSpacing.fieldRadius),
-              border: Border.all(color: context.cBorder),
+              boxShadow: Clay.shadows(context.cBackground, small: true),
             ),
             child: Row(
               children: [
@@ -292,7 +291,8 @@ class _FieldSkeleton extends StatelessWidget {
           ),
           child: const Center(
             child: SizedBox(
-                height: 18, width: 18,
+                height: 18,
+                width: 18,
                 child: CircularProgressIndicator(strokeWidth: 2)),
           ),
         ),

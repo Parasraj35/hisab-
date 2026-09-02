@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/clay.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/error_view.dart';
@@ -79,10 +80,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         _loading = false;
       });
     } catch (e) {
-      if (mounted) setState(() {
-        _error = e.toString();
-        _loading = false;
-      });
+      if (mounted)
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
     }
   }
 
@@ -109,7 +111,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.canPop() ? context.pop() : context.go('/dashboard'),
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go('/dashboard'),
         ),
         title: const Text('Search & Filter'),
       ),
@@ -139,12 +142,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               ),
             ),
           ),
-
           _FilterSheetButton(
             summary: _filterSummary(accounts?.accounts ?? const []),
             onTap: () => _openFilters(accounts?.accounts ?? const []),
           ),
-
           Expanded(
             child: Builder(
               builder: (context) {
@@ -172,8 +173,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 }
 
                 return ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.xl, AppSpacing.sm, AppSpacing.xl, AppSpacing.xl),
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.xl,
+                      AppSpacing.sm, AppSpacing.xl, AppSpacing.xl),
                   itemCount: _results.length + 1,
                   itemBuilder: (context, index) {
                     if (index == 0) {
@@ -193,8 +194,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                           horizontal: AppSpacing.lg, vertical: AppSpacing.md),
                       decoration: BoxDecoration(
                         color: Theme.of(context).cardTheme.color,
-                        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-                        border: Border.all(color: context.cBorder),
+                        borderRadius:
+                            BorderRadius.circular(AppSpacing.cardRadius),
+                        boxShadow:
+                            Clay.shadows(context.cBackground, small: true),
                       ),
                       child: InkWell(
                         onTap: () => context.push('/transactions/${item.id}'),
@@ -213,7 +216,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                   const SizedBox(height: 2),
                                   Text(
                                     '${item.subtitle} · ${Fmt.date(item.date)}',
-                                    style: Theme.of(context).textTheme.bodySmall,
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall,
                                   ),
                                 ],
                               ),
@@ -270,7 +274,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             left: AppSpacing.xl,
             right: AppSpacing.xl,
             top: AppSpacing.xl,
-            bottom: MediaQuery.of(sheetContext).viewInsets.bottom + AppSpacing.xl,
+            bottom:
+                MediaQuery.of(sheetContext).viewInsets.bottom + AppSpacing.xl,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -278,7 +283,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             children: [
               Text('Filters', style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: AppSpacing.lg),
-
               Text('Type', style: Theme.of(context).textTheme.bodySmall),
               const SizedBox(height: AppSpacing.sm),
               Wrap(
@@ -294,7 +298,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 ],
               ),
               const SizedBox(height: AppSpacing.lg),
-
               Text('Date range', style: Theme.of(context).textTheme.bodySmall),
               const SizedBox(height: AppSpacing.sm),
               Wrap(
@@ -310,7 +313,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     .toList(),
               ),
               const SizedBox(height: AppSpacing.lg),
-
               Row(
                 children: [
                   Expanded(
@@ -331,7 +333,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 ],
               ),
               const SizedBox(height: AppSpacing.xxl),
-
               Row(
                 children: [
                   Expanded(
@@ -387,8 +388,7 @@ class _FilterSheetButton extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const Icon(Icons.tune_rounded,
-                  size: 17, color: AppColors.forest),
+              const Icon(Icons.tune_rounded, size: 17, color: AppColors.forest),
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Text(summary,

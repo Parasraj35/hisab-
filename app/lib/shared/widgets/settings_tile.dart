@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
+import '../../core/theme/clay.dart';
 
 /// Shared row for Settings, Security and Profile (screens 21–23).
 class SettingsTile extends StatelessWidget {
@@ -31,7 +32,8 @@ class SettingsTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = danger ? context.cExpense : context.cTextPrimary;
-    final chipColor = danger ? context.cExpense : (iconColor ?? context.cPrimary);
+    final chipColor =
+        danger ? context.cExpense : (iconColor ?? context.cPrimary);
 
     return Column(
       children: [
@@ -93,23 +95,23 @@ class SettingsGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: AppSpacing.sm),
           child: Text(title.toUpperCase(),
-              style: Theme.of(context).textTheme.labelSmall!.copyWith(
-                  letterSpacing: 0.6, fontWeight: FontWeight.w600)),
+              style: Theme.of(context)
+                  .textTheme
+                  .labelSmall!
+                  .copyWith(letterSpacing: 0.6, fontWeight: FontWeight.w600)),
         ),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
           decoration: BoxDecoration(
             color: Theme.of(context).cardTheme.color,
             borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-            border: Border.all(color: isDark ? AppColors.darkBorder : context.cBorder),
+            boxShadow: Clay.shadows(context.cBackground, small: true),
           ),
           child: Column(children: children),
         ),

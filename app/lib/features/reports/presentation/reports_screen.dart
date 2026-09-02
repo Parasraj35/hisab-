@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/clay.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/utils/icon_map.dart';
 import '../../../shared/widgets/app_bottom_nav.dart';
@@ -66,7 +67,6 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                     ref.read(reportPeriodProvider.notifier).state = p,
               ),
               const SizedBox(height: AppSpacing.lg),
-
               Row(
                 children: [
                   Expanded(
@@ -89,7 +89,6 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                 ],
               ),
               const SizedBox(height: AppSpacing.lg),
-
               AppCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,7 +96,6 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                     Text('Expense by Category',
                         style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: AppSpacing.lg),
-
                     if (report.expenseByCategory.isEmpty)
                       Padding(
                         padding: const EdgeInsets.symmetric(
@@ -121,8 +119,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                                 pieTouchData: PieTouchData(
                                   touchCallback: (event, response) {
                                     setState(() {
-                                      _touchedIndex = response
-                                              ?.touchedSection
+                                      _touchedIndex = response?.touchedSection
                                               ?.touchedSectionIndex ??
                                           -1;
                                     });
@@ -136,7 +133,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                               children: [
                                 Text(
                                   Fmt.currency(report.totals.expense,
-                                      code: '', decimals: false).trim(),
+                                          code: '', decimals: false)
+                                      .trim(),
                                   style: TextStyle(
                                       fontSize: 19,
                                       fontWeight: FontWeight.w700,
@@ -165,10 +163,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                 ),
               ),
               const SizedBox(height: AppSpacing.lg),
-
               _TrendCard(currency: report.currency),
               const SizedBox(height: AppSpacing.lg),
-
               AppCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -270,7 +266,7 @@ class _PeriodSelector extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).cardTheme.color,
           borderRadius: BorderRadius.circular(AppSpacing.fieldRadius),
-          border: Border.all(color: context.cBorder),
+          boxShadow: Clay.shadows(context.cBackground, small: true),
         ),
         child: Row(
           children: [
@@ -383,7 +379,8 @@ class _TrendCard extends ConsumerWidget {
 
                 final maxValue = points.fold<double>(
                   0,
-                  (max, p) => [max, p.income, p.expense].reduce((a, b) => a > b ? a : b),
+                  (max, p) => [max, p.income, p.expense]
+                      .reduce((a, b) => a > b ? a : b),
                 );
 
                 return BarChart(

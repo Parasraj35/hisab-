@@ -556,7 +556,7 @@ class _AddDebtSheetState extends ConsumerState<_AddDebtSheet> {
                     decoration: BoxDecoration(
                       borderRadius:
                           BorderRadius.circular(AppSpacing.fieldRadius),
-                      border: Border.all(color: context.cBorder),
+                      boxShadow: Clay.shadows(context.cBackground, small: true),
                     ),
                     child: Row(
                       children: [

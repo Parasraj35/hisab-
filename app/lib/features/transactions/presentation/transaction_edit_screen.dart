@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/clay.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/utils/icon_map.dart';
 import '../../../core/utils/validators.dart';
@@ -100,8 +101,8 @@ class _EditFormState extends ConsumerState<_EditForm> {
       initialEntryMode: DatePickerEntryMode.calendarOnly,
     );
     if (picked != null) {
-      setState(() => _date =
-          DateTime(picked.year, picked.month, picked.day, _date.hour, _date.minute));
+      setState(() => _date = DateTime(
+          picked.year, picked.month, picked.day, _date.hour, _date.minute));
     }
   }
 
@@ -111,10 +112,12 @@ class _EditFormState extends ConsumerState<_EditForm> {
     final amount = double.parse(_amount.text.replaceAll(',', ''));
 
     if (amount != widget.item.amount) changes['amount'] = amount;
-    if (_note.text.trim() != widget.item.note) changes['note'] = _note.text.trim();
+    if (_note.text.trim() != widget.item.note)
+      changes['note'] = _note.text.trim();
     if (_date != widget.item.date) changes['date'] = _date.toIso8601String();
     if (_accountId != widget.item.account?.id) changes['account'] = _accountId;
-    if (_categoryId != widget.item.category?.id) changes['category'] = _categoryId;
+    if (_categoryId != widget.item.category?.id)
+      changes['category'] = _categoryId;
     if (_toAccountId != widget.item.toAccount?.id) {
       changes['toAccount'] = _toAccountId;
     }
@@ -133,7 +136,9 @@ class _EditFormState extends ConsumerState<_EditForm> {
 
     setState(() => _saving = true);
     try {
-      await ref.read(transactionRepositoryProvider).update(widget.item.id, changes);
+      await ref
+          .read(transactionRepositoryProvider)
+          .update(widget.item.id, changes);
 
       ref.invalidate(transactionDetailProvider(widget.item.id));
       ref.invalidate(dashboardOverviewProvider);
@@ -170,7 +175,6 @@ class _EditFormState extends ConsumerState<_EditForm> {
             validator: Validators.amount,
           ),
           const SizedBox(height: AppSpacing.xl),
-
           if (!isTransfer)
             ref.watch(categoriesProvider(widget.item.type)).when(
                   loading: () => const SizedBox(
@@ -191,7 +195,6 @@ class _EditFormState extends ConsumerState<_EditForm> {
                   ),
                 ),
           if (!isTransfer) const SizedBox(height: AppSpacing.xl),
-
           AppDropdown<Account>(
             label: isTransfer ? 'From Account' : 'Account',
             value: accounts.where((a) => a.id == _accountId).firstOrNull,
@@ -201,7 +204,6 @@ class _EditFormState extends ConsumerState<_EditForm> {
                 size: 18, color: AppColors.forest),
             onChanged: (a) => setState(() => _accountId = a?.id),
           ),
-
           if (isTransfer) ...[
             const SizedBox(height: AppSpacing.xl),
             AppDropdown<Account>(
@@ -215,7 +217,6 @@ class _EditFormState extends ConsumerState<_EditForm> {
             ),
           ],
           const SizedBox(height: AppSpacing.xl),
-
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -233,7 +234,7 @@ class _EditFormState extends ConsumerState<_EditForm> {
                   decoration: BoxDecoration(
                     color: Theme.of(context).cardTheme.color,
                     borderRadius: BorderRadius.circular(AppSpacing.fieldRadius),
-                    border: Border.all(color: context.cBorder),
+                    boxShadow: Clay.shadows(context.cBackground, small: true),
                   ),
                   child: Row(
                     children: [
@@ -250,7 +251,6 @@ class _EditFormState extends ConsumerState<_EditForm> {
             ],
           ),
           const SizedBox(height: AppSpacing.xl),
-
           AppTextField(
             label: 'Note (Optional)',
             controller: _note,
@@ -258,7 +258,6 @@ class _EditFormState extends ConsumerState<_EditForm> {
             textCapitalization: TextCapitalization.sentences,
           ),
           const SizedBox(height: AppSpacing.xxxl),
-
           PrimaryButton(
             label: 'Save Changes',
             loading: _saving,

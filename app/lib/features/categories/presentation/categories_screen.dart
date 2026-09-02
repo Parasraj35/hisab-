@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/clay.dart';
 import '../../../core/utils/icon_map.dart';
 import '../../../core/utils/validators.dart';
 import '../../../shared/widgets/app_snackbar.dart';
@@ -31,7 +32,8 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.canPop() ? context.pop() : context.go('/settings'),
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go('/settings'),
         ),
         title: const Text('Categories'),
       ),
@@ -57,7 +59,8 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                         duration: const Duration(milliseconds: 180),
                         padding: const EdgeInsets.symmetric(vertical: 11),
                         decoration: BoxDecoration(
-                          color: selected ? AppColors.forest : Colors.transparent,
+                          color:
+                              selected ? AppColors.forest : Colors.transparent,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -78,7 +81,6 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
               ),
             ),
           ),
-
           Expanded(
             child: async.when(
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -90,7 +92,8 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                 padding: const EdgeInsets.fromLTRB(
                     AppSpacing.xl, 0, AppSpacing.xl, AppSpacing.xl),
                 itemCount: categories.length,
-                separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+                separatorBuilder: (_, __) =>
+                    const SizedBox(height: AppSpacing.sm),
                 itemBuilder: (context, index) {
                   final category = categories[index];
                   final color = colorFromHex(category.color);
@@ -100,8 +103,9 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                         horizontal: AppSpacing.lg, vertical: AppSpacing.md),
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardTheme.color,
-                      borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-                      border: Border.all(color: context.cBorder),
+                      borderRadius:
+                          BorderRadius.circular(AppSpacing.cardRadius),
+                      boxShadow: Clay.shadows(context.cBackground, small: true),
                     ),
                     child: Row(
                       children: [
@@ -145,7 +149,6 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
               ),
             ),
           ),
-
           Padding(
             padding: const EdgeInsets.fromLTRB(
                 AppSpacing.xl, 0, AppSpacing.xl, AppSpacing.xl),
@@ -184,12 +187,16 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
             onPressed: () async {
               Navigator.pop(dialogContext);
               try {
-                final archived =
-                    await ref.read(categoryRepositoryProvider).remove(category.id);
+                final archived = await ref
+                    .read(categoryRepositoryProvider)
+                    .remove(category.id);
                 ref.invalidate(categoriesProvider(_type));
                 if (mounted) {
-                  showAppSnack(context,
-                      archived ? '${category.name} archived' : 'Category deleted');
+                  showAppSnack(
+                      context,
+                      archived
+                          ? '${category.name} archived'
+                          : 'Category deleted');
                 }
               } catch (e) {
                 if (mounted) showAppSnack(context, e.toString(), isError: true);
@@ -220,8 +227,17 @@ class _CategoryFormSheetState extends ConsumerState<_CategoryFormSheet> {
   bool _saving = false;
 
   static const _iconOptions = [
-    'restaurant', 'directions_car', 'bolt', 'shopping_bag', 'favorite',
-    'school', 'movie', 'laptop', 'storefront', 'card_giftcard', 'category',
+    'restaurant',
+    'directions_car',
+    'bolt',
+    'shopping_bag',
+    'favorite',
+    'school',
+    'movie',
+    'laptop',
+    'storefront',
+    'card_giftcard',
+    'category',
   ];
 
   @override
@@ -270,7 +286,8 @@ class _CategoryFormSheetState extends ConsumerState<_CategoryFormSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('New ${widget.type == 'expense' ? 'Expense' : 'Income'} Category',
+            Text(
+                'New ${widget.type == 'expense' ? 'Expense' : 'Income'} Category',
                 style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: AppSpacing.xl),
             AppTextField(
@@ -281,7 +298,6 @@ class _CategoryFormSheetState extends ConsumerState<_CategoryFormSheet> {
               validator: (v) => Validators.required(v, 'Category name'),
             ),
             const SizedBox(height: AppSpacing.lg),
-
             Text('Icon', style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(height: AppSpacing.sm),
             Wrap(
@@ -310,7 +326,6 @@ class _CategoryFormSheetState extends ConsumerState<_CategoryFormSheet> {
               }).toList(),
             ),
             const SizedBox(height: AppSpacing.lg),
-
             Text('Colour', style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(height: AppSpacing.sm),
             Wrap(
@@ -337,7 +352,6 @@ class _CategoryFormSheetState extends ConsumerState<_CategoryFormSheet> {
               }).toList(),
             ),
             const SizedBox(height: AppSpacing.xxl),
-
             PrimaryButton(
                 label: 'Add Category', loading: _saving, onPressed: _save),
           ],

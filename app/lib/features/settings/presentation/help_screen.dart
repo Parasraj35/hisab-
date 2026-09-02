@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/clay.dart';
 import '../../../shared/widgets/app_snackbar.dart';
 import '../../../shared/widgets/settings_tile.dart';
 
@@ -50,7 +51,8 @@ class HelpScreen extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.canPop() ? context.pop() : context.go('/settings'),
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go('/settings'),
         ),
         title: const Text('Help & Support'),
       ),
@@ -82,7 +84,6 @@ class HelpScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.xl),
-
           Text('Frequently Asked',
               style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: AppSpacing.sm),
@@ -90,7 +91,7 @@ class HelpScreen extends StatelessWidget {
             decoration: BoxDecoration(
               color: Theme.of(context).cardTheme.color,
               borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-              border: Border.all(color: context.cBorder),
+              boxShadow: Clay.shadows(context.cBackground, small: true),
             ),
             child: Column(
               children: _faqs.asMap().entries.map((entry) {
@@ -123,7 +124,6 @@ class HelpScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.xl),
-
           SettingsGroup(
             title: 'Get in touch',
             children: [
@@ -131,15 +131,15 @@ class HelpScreen extends StatelessWidget {
                 title: 'Contact Support',
                 icon: Icons.mail_outline_rounded,
                 iconColor: const Color(0xFF3B82F6),
-                onTap: () => showAppSnack(
-                    context, 'Email support@hisab.app for help'),
+                onTap: () =>
+                    showAppSnack(context, 'Email support@hisab.app for help'),
               ),
               SettingsTile(
                 title: 'Report a Problem',
                 icon: Icons.bug_report_outlined,
                 iconColor: AppColors.expense,
-                onTap: () =>
-                    showAppSnack(context, 'Thanks — describe the issue in an email'),
+                onTap: () => showAppSnack(
+                    context, 'Thanks — describe the issue in an email'),
               ),
               SettingsTile(
                 title: 'Suggest a Feature',
@@ -152,12 +152,12 @@ class HelpScreen extends StatelessWidget {
                 icon: Icons.star_outline_rounded,
                 iconColor: const Color(0xFFEAB308),
                 showDivider: false,
-                onTap: () => showAppSnack(context, 'Opens your app store listing'),
+                onTap: () =>
+                    showAppSnack(context, 'Opens your app store listing'),
               ),
             ],
           ),
           const SizedBox(height: AppSpacing.xxl),
-
           Center(
             child: Text('HISAB v1.0.0',
                 style: Theme.of(context).textTheme.labelSmall),

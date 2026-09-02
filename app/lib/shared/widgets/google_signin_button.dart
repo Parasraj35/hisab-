@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
+import '../../core/theme/clay.dart';
 
 /// Google's own "G" mark — official brand proportions and colors, not a
 /// single-color Material icon standing in for it.
@@ -25,14 +26,19 @@ class GoogleSignInButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       width: double.infinity,
       height: AppSpacing.buttonHeight,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppSpacing.buttonRadius),
+        boxShadow:
+            loading ? null : Clay.shadows(context.cBackground, small: true),
+      ),
       child: OutlinedButton(
         onPressed: loading ? null : onPressed,
         style: OutlinedButton.styleFrom(
           backgroundColor: Theme.of(context).cardTheme.color,
-          side: BorderSide(color: context.cBorder),
+          side: BorderSide.none,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppSpacing.buttonRadius),
           ),

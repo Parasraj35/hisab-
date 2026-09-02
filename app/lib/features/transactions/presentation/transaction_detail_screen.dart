@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/clay.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/utils/icon_map.dart';
 import '../../../shared/widgets/app_snackbar.dart';
@@ -14,8 +15,8 @@ import '../data/transaction_repository.dart';
 import '../state/history_controller.dart';
 
 final transactionDetailProvider =
-    FutureProvider.family<TransactionItem, String>((ref, id) =>
-        ref.read(transactionRepositoryProvider).getOne(id));
+    FutureProvider.family<TransactionItem, String>(
+        (ref, id) => ref.read(transactionRepositoryProvider).getOne(id));
 
 /// Screen 14 — Transaction Detail
 class TransactionDetailScreen extends ConsumerWidget {
@@ -31,7 +32,8 @@ class TransactionDetailScreen extends ConsumerWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.canPop() ? context.pop() : context.go('/dashboard'),
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go('/dashboard'),
         ),
         title: const Text('Transaction Detail'),
       ),
@@ -101,26 +103,28 @@ class _Body extends ConsumerWidget {
               ),
               const SizedBox(height: AppSpacing.xs),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: _accent.withOpacity(0.10),
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(_typeLabel,
                     style: TextStyle(
-                        fontSize: 11, fontWeight: FontWeight.w600, color: _accent)),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: _accent)),
               ),
             ],
           ),
         ),
         const SizedBox(height: AppSpacing.xxl),
-
         Container(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
           decoration: BoxDecoration(
             color: Theme.of(context).cardTheme.color,
             borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-            border: Border.all(color: context.cBorder),
+            boxShadow: Clay.shadows(context.cBackground, small: true),
           ),
           child: Column(
             children: [
@@ -130,7 +134,8 @@ class _Body extends ConsumerWidget {
                 _DetailRow(label: 'From', value: item.account?.name ?? '—'),
                 _DetailRow(label: 'To', value: item.toAccount?.name ?? '—'),
               ] else ...[
-                _DetailRow(label: 'Category', value: item.category?.name ?? '—'),
+                _DetailRow(
+                    label: 'Category', value: item.category?.name ?? '—'),
                 _DetailRow(label: 'Account', value: item.account?.name ?? '—'),
               ],
               _DetailRow(
@@ -142,14 +147,14 @@ class _Body extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.xxl),
-
         Row(
           children: [
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: () => context
                     .push('/transactions/${item.id}/edit')
-                    .then((_) => ref.invalidate(transactionDetailProvider(item.id))),
+                    .then((_) =>
+                        ref.invalidate(transactionDetailProvider(item.id))),
                 icon: const Icon(Icons.edit_outlined, size: 18),
                 label: const Text('Edit',
                     style: TextStyle(fontWeight: FontWeight.w600)),
@@ -238,12 +243,15 @@ class _DetailRow extends StatelessWidget {
             children: [
               SizedBox(
                 width: 90,
-                child: Text(label, style: Theme.of(context).textTheme.bodySmall),
+                child:
+                    Text(label, style: Theme.of(context).textTheme.bodySmall),
               ),
               Expanded(
                 child: Text(value,
                     textAlign: TextAlign.right,
-                    style: Theme.of(context).textTheme.bodyLarge!
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge!
                         .copyWith(fontSize: 14, fontWeight: FontWeight.w500)),
               ),
             ],

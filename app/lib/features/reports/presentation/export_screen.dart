@@ -6,6 +6,7 @@ import 'package:open_filex/open_filex.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/clay.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../shared/widgets/app_dropdown.dart';
 import '../../../shared/widgets/app_snackbar.dart';
@@ -76,7 +77,8 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     if (_file == null) return;
     final result = await OpenFilex.open(_file!.path);
     if (result.type != ResultType.done && mounted) {
-      showAppSnack(context, 'No app available to open this file', isError: true);
+      showAppSnack(context, 'No app available to open this file',
+          isError: true);
     }
   }
 
@@ -86,7 +88,8 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.canPop() ? context.pop() : context.go('/reports'),
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go('/reports'),
         ),
         title: const Text('Export Report'),
       ),
@@ -114,7 +117,6 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
               }),
             ),
             const SizedBox(height: AppSpacing.xl),
-
             AppDropdown<String>(
               label: 'Select Format',
               value: _format,
@@ -133,7 +135,6 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
               }),
             ),
             const SizedBox(height: AppSpacing.xl),
-
             AppDropdown<ReportPeriod>(
               label: 'Date Range',
               value: _period,
@@ -147,7 +148,6 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
               }),
             ),
             const SizedBox(height: AppSpacing.md),
-
             Text(
               _type == 'summary'
                   ? 'Totals and a category breakdown.'
@@ -155,13 +155,11 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: AppSpacing.xxl),
-
             PrimaryButton(
               label: 'Generate ${_format.toUpperCase()}',
               loading: _generating,
               onPressed: _generate,
             ),
-
             if (_generating && _progress > 0) ...[
               const SizedBox(height: AppSpacing.lg),
               ClipRRect(
@@ -174,7 +172,6 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                 ),
               ),
             ],
-
             if (_file != null) ...[
               const SizedBox(height: AppSpacing.xxl),
               _FileCard(
@@ -231,7 +228,7 @@ class _FileCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).cardTheme.color,
           borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-          border: Border.all(color: AppColors.accent),
+          boxShadow: Clay.shadows(AppColors.accent, small: true),
         ),
         child: Row(
           children: [
@@ -259,7 +256,9 @@ class _FileCard extends StatelessWidget {
                   Text(_fileName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleMedium!
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium!
                           .copyWith(fontSize: 14)),
                   const SizedBox(height: 2),
                   Text(

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/clay.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/utils/icon_map.dart';
 import '../../../shared/widgets/app_snackbar.dart';
@@ -126,14 +127,14 @@ class _Body extends ConsumerWidget {
             decoration: BoxDecoration(
               color: Theme.of(context).cardTheme.color,
               borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-              border: Border.all(color: context.cBorder),
+              boxShadow: Clay.shadows(context.cBackground, small: true),
             ),
             child: Column(
               children: [
                 _DetailRow(
                   label: 'Type',
-                  value: account.type[0].toUpperCase() +
-                      account.type.substring(1),
+                  value:
+                      account.type[0].toUpperCase() + account.type.substring(1),
                 ),
                 _DetailRow(label: 'Currency', value: account.currency),
                 _DetailRow(
@@ -204,7 +205,7 @@ class _Body extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardTheme.color,
                   borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-                  border: Border.all(color: context.cBorder),
+                  boxShadow: Clay.shadows(context.cBackground, small: true),
                 ),
                 child: Column(
                   children: page.items.asMap().entries.map((entry) {
@@ -242,17 +243,22 @@ class _Body extends ConsumerWidget {
             onPressed: () async {
               Navigator.pop(dialogContext);
               try {
-                final archived =
-                    await ref.read(accountRepositoryProvider).remove(account.id);
+                final archived = await ref
+                    .read(accountRepositoryProvider)
+                    .remove(account.id);
                 ref.invalidate(accountsProvider);
                 ref.invalidate(dashboardOverviewProvider);
                 if (context.mounted) {
-                  showAppSnack(context,
-                      archived ? '${account.name} archived' : '${account.name} deleted');
+                  showAppSnack(
+                      context,
+                      archived
+                          ? '${account.name} archived'
+                          : '${account.name} deleted');
                   context.pop();
                 }
               } catch (e) {
-                if (context.mounted) showAppSnack(context, e.toString(), isError: true);
+                if (context.mounted)
+                  showAppSnack(context, e.toString(), isError: true);
               }
             },
             child:
@@ -286,12 +292,15 @@ class _DetailRow extends StatelessWidget {
             children: [
               SizedBox(
                 width: 110,
-                child: Text(label, style: Theme.of(context).textTheme.bodySmall),
+                child:
+                    Text(label, style: Theme.of(context).textTheme.bodySmall),
               ),
               Expanded(
                 child: Text(value,
                     textAlign: TextAlign.right,
-                    style: Theme.of(context).textTheme.bodyLarge!
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge!
                         .copyWith(fontSize: 14, fontWeight: FontWeight.w500)),
               ),
             ],
