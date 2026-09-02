@@ -84,6 +84,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ),
         title: Text(firstName != null ? '$greeting, $firstName' : greeting),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.search_rounded),
+            tooltip: 'Search',
+            onPressed: () => context.push('/search'),
+          ),
           Stack(
             clipBehavior: Clip.none,
             children: [

@@ -4,7 +4,6 @@ import bcrypt from 'bcryptjs';
 const settingsSchema = new mongoose.Schema(
   {
     currency: { type: String, default: 'PKR' },
-    dateFormat: { type: String, default: 'DD MMM YYYY' },
     theme: { type: String, enum: ['system', 'light', 'dark'], default: 'system' },
     language: { type: String, default: 'en' },
     appLock: { type: Boolean, default: false },

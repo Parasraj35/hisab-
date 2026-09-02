@@ -34,8 +34,12 @@ class AppOpenAdManager {
         onAdLoaded: (ad) {
           _ad = ad;
           _loadTime = DateTime.now();
+          debugPrint('[ads] App Open ad loaded');
         },
-        onAdFailedToLoad: (_) => _ad = null,
+        onAdFailedToLoad: (error) {
+          _ad = null;
+          debugPrint('[ads] App Open ad failed to load: $error');
+        },
       ),
     );
   }
@@ -43,7 +47,11 @@ class AppOpenAdManager {
   /// Shows the ad if one finished loading in time; otherwise does nothing —
   /// launch is never blocked waiting on an ad.
   void showAdIfAvailable() {
-    if (_isShowingAd || !_isAdAvailable) return;
+    if (_isShowingAd) return;
+    if (!_isAdAvailable) {
+      debugPrint('[ads] No App Open ad available to show yet');
+      return;
+    }
 
     _ad!.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (_) => _isShowingAd = true,

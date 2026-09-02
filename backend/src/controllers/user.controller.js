@@ -13,7 +13,6 @@ export const updateProfileSchema = z.object({
 
 export const settingsSchema = z.object({
   currency: z.string().length(3).optional(),
-  dateFormat: z.string().max(20).optional(),
   theme: z.enum(['system', 'light', 'dark']).optional(),
   language: z.string().max(5).optional(),
   appLock: z.boolean().optional(),

@@ -14,7 +14,6 @@ class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
   static const _currencies = ['PKR', 'USD', 'GBP', 'EUR', 'AED', 'SAR'];
-  static const _dateFormats = ['DD MMM YYYY', 'MM/DD/YYYY', 'DD/MM/YYYY', 'YYYY-MM-DD'];
   static const _themes = ['system', 'light', 'dark'];
 
   @override
@@ -60,19 +59,6 @@ class SettingsScreen extends ConsumerWidget {
                   options: _currencies,
                   current: user?.currency ?? 'PKR',
                   onPick: (v) => patch({'currency': v}),
-                ),
-              ),
-              SettingsTile(
-                title: 'Date Format',
-                subtitle: 'DD MMM YYYY',
-                icon: Icons.event_outlined,
-                iconColor: AppColors.info,
-                onTap: () => _pickOption(
-                  context,
-                  title: 'Date Format',
-                  options: _dateFormats,
-                  current: 'DD MMM YYYY',
-                  onPick: (v) => patch({'dateFormat': v}),
                 ),
               ),
               SettingsTile(
@@ -123,14 +109,8 @@ class SettingsScreen extends ConsumerWidget {
                 title: 'Savings Goals',
                 icon: Icons.savings_outlined,
                 iconColor: const Color(0xFFEAB308),
-                onTap: () => context.push('/savings'),
-              ),
-              SettingsTile(
-                title: 'Search & Filter',
-                icon: Icons.search_rounded,
-                iconColor: const Color(0xFF0EA5E9),
                 showDivider: false,
-                onTap: () => context.push('/search'),
+                onTap: () => context.push('/savings'),
               ),
             ],
           ),
