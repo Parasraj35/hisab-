@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/ads/app_open_ad_manager.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 import '../../shared/widgets/brand_mark.dart';
@@ -34,7 +35,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     Future.wait([
       ref.read(authControllerProvider.notifier).restoreSession(),
       Future.delayed(const Duration(milliseconds: 1600)),
-    ]);
+    ]).then((_) => AppOpenAdManager.instance.showAdIfAvailable());
   }
 
   @override
