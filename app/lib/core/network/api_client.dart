@@ -12,7 +12,11 @@ class ApiClient {
   ApiClient(this._storage) {
     _dio = Dio(BaseOptions(
       baseUrl: ApiEndpoints.baseUrl,
-      connectTimeout: const Duration(seconds: 15),
+      // Bounds how long an unreachable/misconfigured host can stall the app —
+      // notably the splash screen's session check. Connecting itself should
+      // never legitimately take this long; receiveTimeout stays generous
+      // since it also covers slower operations like uploads/exports.
+      connectTimeout: const Duration(seconds: 8),
       receiveTimeout: const Duration(seconds: 20),
       headers: {'Content-Type': 'application/json'},
     ));
@@ -34,8 +38,13 @@ class ApiClient {
           try {
             final refresh = await _storage.refreshToken;
             if (refresh != null) {
-              final res = await Dio(BaseOptions(baseUrl: ApiEndpoints.baseUrl))
-                  .post(ApiEndpoints.refresh, data: {'refreshToken': refresh});
+              // Previously had no timeout at all — an unreachable host could
+              // hang this refresh call indefinitely.
+              final res = await Dio(BaseOptions(
+                baseUrl: ApiEndpoints.baseUrl,
+                connectTimeout: const Duration(seconds: 8),
+                receiveTimeout: const Duration(seconds: 10),
+              )).post(ApiEndpoints.refresh, data: {'refreshToken': refresh});
               final tokens = res.data['data']['tokens'];
               await _storage.saveTokens(
                 access: tokens['accessToken'],

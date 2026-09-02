@@ -1,9 +1,16 @@
 class ApiEndpoints {
   ApiEndpoints._();
 
-  /// Android emulator reaches the host machine on 10.0.2.2.
-  /// iOS simulator / desktop can use localhost.
-  static const String baseUrl = 'http://10.0.2.2:5000/api/v1';
+  /// Defaults to the Android emulator's host-loopback alias for local dev
+  /// (iOS simulator / desktop can use localhost instead). Production builds
+  /// MUST override this with the real deployed API, e.g.:
+  ///   flutter build apk --release --dart-define=API_BASE_URL=https://api.example.com/api/v1
+  /// Left unset, a real device can never reach 10.0.2.2 — every request
+  /// hangs until it times out instead of failing fast.
+  static const String baseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'http://10.0.2.2:5000/api/v1',
+  );
 
   // Auth
   static const String register = '/auth/register';

@@ -11,9 +11,13 @@ import 'features/settings/data/settings_repository.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  runApp(const ProviderScope(child: HisabApp()));
+
+  // Neither call is needed for the first frame — the App Open ad only shows
+  // once the splash screen finishes — so they run after runApp() instead of
+  // competing with engine/widget-tree startup for the main isolate.
   MobileAds.instance.initialize();
   AppOpenAdManager.instance.loadAd();
-  runApp(const ProviderScope(child: HisabApp()));
 }
 
 class HisabApp extends ConsumerWidget {

@@ -82,6 +82,7 @@ class ReportRepository {
     final dio = Dio(BaseOptions(
       baseUrl: ApiEndpoints.baseUrl,
       headers: {if (token != null) 'Authorization': 'Bearer $token'},
+      connectTimeout: const Duration(seconds: 8),
       receiveTimeout: const Duration(seconds: 60),
     ));
 
