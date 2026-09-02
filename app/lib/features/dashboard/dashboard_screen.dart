@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
+import '../../core/theme/clay.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/utils/icon_map.dart';
 import '../../shared/widgets/app_bottom_nav.dart';
@@ -20,7 +21,8 @@ import 'data/dashboard_repository.dart';
 String _monthInsight(double income, double expense, String currency) {
   if (income == 0 && expense == 0) return 'No activity yet this month';
   final net = income - expense;
-  if (net > 0) return "You're ${Fmt.currency(net, code: currency)} ahead this month";
+  if (net > 0)
+    return "You're ${Fmt.currency(net, code: currency)} ahead this month";
   if (net < 0) {
     return "You've spent ${Fmt.currency(net.abs(), code: currency)} more than you earned";
   }
@@ -62,8 +64,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     // "HISAB" only needs saying once — on a screen someone opens every day,
     // their own name does more work than the brand name repeated back to them.
     final fullName = ref.watch(authControllerProvider).user?.fullName ?? '';
-    final firstName =
-        fullName.trim().isEmpty ? null : fullName.trim().split(RegExp(r'\s+')).first;
+    final firstName = fullName.trim().isEmpty
+        ? null
+        : fullName.trim().split(RegExp(r'\s+')).first;
     final hour = DateTime.now().hour;
     final greeting = hour < 12
         ? 'Good morning'
@@ -121,15 +124,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           height: 60,
           width: 60,
           decoration: BoxDecoration(
-            color: context.cAccent,
+            gradient: Clay.fill(context.cAccent),
             shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: context.cAccent.withOpacity(0.35),
-                blurRadius: 16,
-                offset: const Offset(0, 6),
-              ),
-            ],
+            boxShadow: Clay.shadows(context.cAccent),
           ),
           child: const Icon(Icons.add, size: 28, color: Colors.white),
         ),
@@ -138,163 +135,141 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       bottomNavigationBar: const AppBottomNav(currentIndex: 0),
       body: overviewAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, _) => ErrorView(message: err.toString(), onRetry: _refresh),
+        error: (err, _) =>
+            ErrorView(message: err.toString(), onRetry: _refresh),
         data: (data) => RefreshIndicator(
           onRefresh: _refresh,
           color: context.cPrimary,
           child: ListView(
-            padding: EdgeInsets.zero,
+            padding: const EdgeInsets.fromLTRB(
+                AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, 0),
             children: [
               _BalanceHeader(
                 total: data.totalBalance,
                 currency: data.currency,
                 hidden: _balanceHidden,
-                insight: _monthInsight(
-                    data.thisMonth.income, data.thisMonth.expense, data.currency),
+                insight: _monthInsight(data.thisMonth.income,
+                    data.thisMonth.expense, data.currency),
                 onToggleHidden: () =>
                     setState(() => _balanceHidden = !_balanceHidden),
               ),
-
-              Transform.translate(
-                offset: const Offset(0, -24),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: context.cSurface,
-                    borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(32)),
-                  ),
-                  padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.xl, AppSpacing.xxl, AppSpacing.xl, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _SectionTitle(
-                        title: 'Accounts',
-                        action: 'See all',
-                        onAction: () => context.go('/accounts'),
+              const SizedBox(height: AppSpacing.xxl),
+              _SectionTitle(
+                title: 'Accounts',
+                action: 'See all',
+                onAction: () => context.go('/accounts'),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              if (data.accounts.isEmpty)
+                _EmptyLine(
+                  icon: Icons.account_balance_wallet_outlined,
+                  message: 'Add an account to start tracking your money.',
+                  actionLabel: 'Add account',
+                  onAction: () => context.go('/accounts'),
+                )
+              else
+                ...data.accounts.take(3).toList().asMap().entries.map(
+                      (entry) => _AccountRow(
+                        account: entry.value,
+                        showDivider:
+                            entry.key < data.accounts.take(3).length - 1,
+                        onTap: () =>
+                            context.push('/accounts/${entry.value.id}'),
                       ),
-                      const SizedBox(height: AppSpacing.sm),
-
-                      if (data.accounts.isEmpty)
-                        _EmptyLine(
-                          icon: Icons.account_balance_wallet_outlined,
-                          message:
-                              'Add an account to start tracking your money.',
-                          actionLabel: 'Add account',
-                          onAction: () => context.go('/accounts'),
-                        )
-                      else
-                        ...data.accounts.take(3).toList().asMap().entries.map(
-                              (entry) => _AccountRow(
-                                account: entry.value,
-                                showDivider: entry.key <
-                                    data.accounts.take(3).length - 1,
-                                onTap: () =>
-                                    context.push('/accounts/${entry.value.id}'),
-                              ),
-                            ),
-
-                      const SizedBox(height: AppSpacing.xxl),
-                      IntrinsicHeight(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Expanded(
-                              child: SummaryChip(
-                                label: 'Income this month',
-                                amount: data.thisMonth.income,
-                                currency: data.currency,
-                                isIncome: true,
-                                compact: true,
-                              ),
-                            ),
-                            const SizedBox(width: AppSpacing.md),
-                            Expanded(
-                              child: SummaryChip(
-                                label: 'Expense this month',
-                                amount: data.thisMonth.expense,
-                                currency: data.currency,
-                                isIncome: false,
-                                compact: true,
-                              ),
-                            ),
-                          ],
-                        ),
+                    ),
+              const SizedBox(height: AppSpacing.xxl),
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: SummaryChip(
+                        label: 'Income this month',
+                        amount: data.thisMonth.income,
+                        currency: data.currency,
+                        isIncome: true,
+                        compact: true,
                       ),
-
-                      const SizedBox(height: AppSpacing.xxl),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _QuickAction(
-                            icon: Icons.arrow_upward_rounded,
-                            label: 'Expense',
-                            color: context.cExpense,
-                            soft: context.isDark
-                                ? context.cExpense.withOpacity(0.16)
-                                : AppColors.expenseSoft,
-                            onTap: () => context.push('/add-expense'),
-                          ),
-                          _QuickAction(
-                            icon: Icons.arrow_downward_rounded,
-                            label: 'Income',
-                            color: context.cIncome,
-                            soft: context.isDark
-                                ? context.cIncome.withOpacity(0.16)
-                                : AppColors.incomeSoft,
-                            onTap: () => context.push('/add-income'),
-                          ),
-                          _QuickAction(
-                            icon: Icons.swap_horiz_rounded,
-                            label: 'Transfer',
-                            color: AppColors.quickNeutral,
-                            soft: context.quickTint(
-                                AppColors.quickNeutral, AppColors.quickNeutralSoft),
-                            onTap: () => context.push('/transfer'),
-                          ),
-                          _QuickAction(
-                            icon: Icons.more_horiz_rounded,
-                            label: 'More',
-                            color: AppColors.quickNeutral,
-                            soft: context.quickTint(
-                                AppColors.quickNeutral, AppColors.quickNeutralSoft),
-                            onTap: () => context.push('/settings'),
-                          ),
-                        ],
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: SummaryChip(
+                        label: 'Expense this month',
+                        amount: data.thisMonth.expense,
+                        currency: data.currency,
+                        isIncome: false,
+                        compact: true,
                       ),
-
-                      const SizedBox(height: AppSpacing.xxl),
-                      _SectionTitle(
-                        title: 'Recent Activity',
-                        action: 'View all',
-                        onAction: () => context.push('/history'),
-                      ),
-
-                      if (data.recentTransactions.isEmpty)
-                        _EmptyLine(
-                          icon: Icons.receipt_long_outlined,
-                          message:
-                              'Your transactions will show up here once you add one.',
-                          actionLabel: 'Add expense',
-                          onAction: () => context.push('/add-expense'),
-                        )
-                      else
-                        ...data.recentTransactions.asMap().entries.map(
-                              (entry) => TransactionTile(
-                                item: entry.value,
-                                currency: data.currency,
-                                showDivider: entry.key <
-                                    data.recentTransactions.length - 1,
-                                onTap: () => context
-                                    .push('/transactions/${entry.value.id}'),
-                              ),
-                            ),
-
-                      const SizedBox(height: 96),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
+              const SizedBox(height: AppSpacing.xxl),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _QuickAction(
+                    icon: Icons.arrow_upward_rounded,
+                    label: 'Expense',
+                    color: context.cExpense,
+                    soft: context.isDark
+                        ? context.cExpense.withOpacity(0.16)
+                        : AppColors.expenseSoft,
+                    onTap: () => context.push('/add-expense'),
+                  ),
+                  _QuickAction(
+                    icon: Icons.arrow_downward_rounded,
+                    label: 'Income',
+                    color: context.cIncome,
+                    soft: context.isDark
+                        ? context.cIncome.withOpacity(0.16)
+                        : AppColors.incomeSoft,
+                    onTap: () => context.push('/add-income'),
+                  ),
+                  _QuickAction(
+                    icon: Icons.swap_horiz_rounded,
+                    label: 'Transfer',
+                    color: AppColors.quickNeutral,
+                    soft: context.quickTint(
+                        AppColors.quickNeutral, AppColors.quickNeutralSoft),
+                    onTap: () => context.push('/transfer'),
+                  ),
+                  _QuickAction(
+                    icon: Icons.more_horiz_rounded,
+                    label: 'More',
+                    color: AppColors.quickNeutral,
+                    soft: context.quickTint(
+                        AppColors.quickNeutral, AppColors.quickNeutralSoft),
+                    onTap: () => context.push('/settings'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.xxl),
+              _SectionTitle(
+                title: 'Recent Activity',
+                action: 'View all',
+                onAction: () => context.push('/history'),
+              ),
+              if (data.recentTransactions.isEmpty)
+                _EmptyLine(
+                  icon: Icons.receipt_long_outlined,
+                  message:
+                      'Your transactions will show up here once you add one.',
+                  actionLabel: 'Add expense',
+                  onAction: () => context.push('/add-expense'),
+                )
+              else
+                ...data.recentTransactions.asMap().entries.map(
+                      (entry) => TransactionTile(
+                        item: entry.value,
+                        currency: data.currency,
+                        showDivider:
+                            entry.key < data.recentTransactions.length - 1,
+                        onTap: () =>
+                            context.push('/transactions/${entry.value.id}'),
+                      ),
+                    ),
+              const SizedBox(height: 96),
             ],
           ),
         ),
@@ -490,8 +465,8 @@ class _EmptyLine extends StatelessWidget {
           Container(
             height: 38,
             width: 38,
-            decoration:
-                BoxDecoration(color: context.cLightGreen, shape: BoxShape.circle),
+            decoration: BoxDecoration(
+                color: context.cLightGreen, shape: BoxShape.circle),
             child: Icon(
               icon,
               size: 17,
@@ -508,7 +483,9 @@ class _EmptyLine extends StatelessWidget {
                   child: Text(
                     message,
                     style: TextStyle(
-                        fontSize: 13, color: context.cTextSecondary, height: 1.35),
+                        fontSize: 13,
+                        color: context.cTextSecondary,
+                        height: 1.35),
                   ),
                 ),
                 if (actionLabel != null) ...[
@@ -659,7 +636,11 @@ class _QuickAction extends StatelessWidget {
             Container(
               height: 54,
               width: 54,
-              decoration: BoxDecoration(color: soft, shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                color: soft,
+                shape: BoxShape.circle,
+                boxShadow: Clay.shadows(color, small: true),
+              ),
               child: Icon(icon, size: 23, color: color),
             ),
             const SizedBox(height: AppSpacing.sm),
@@ -700,9 +681,12 @@ class _BalanceHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: context.cHeader,
-      padding: const EdgeInsets.fromLTRB(
-          AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, 58),
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        gradient: Clay.fill(context.cHeader),
+        borderRadius: BorderRadius.circular(26),
+        boxShadow: Clay.shadows(context.cHeader),
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -776,7 +760,9 @@ class _BalanceHeader extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                hidden ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                hidden
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined,
                 color: Colors.white,
                 size: 20,
               ),
