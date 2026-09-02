@@ -8,6 +8,7 @@ import '../../../core/utils/validators.dart';
 import '../../../shared/widgets/app_snackbar.dart';
 import '../../../shared/widgets/app_text_field.dart';
 import '../../../shared/widgets/primary_button.dart';
+import '../../settings/data/settings_repository.dart';
 import '../state/auth_controller.dart';
 
 /// Screen 5 — Profile Setup
@@ -24,6 +25,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   late final TextEditingController _email;
   late final TextEditingController _phone;
   File? _avatar;
+  bool _uploadingAvatar = false;
 
   @override
   void initState() {
@@ -43,8 +45,8 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   }
 
   Future<void> _pickAvatar() async {
-    final picked = await ImagePicker()
-        .pickImage(source: ImageSource.gallery, maxWidth: 720, imageQuality: 80);
+    final picked = await ImagePicker().pickImage(
+        source: ImageSource.gallery, maxWidth: 720, imageQuality: 80);
     if (picked != null) setState(() => _avatar = File(picked.path));
   }
 
@@ -52,10 +54,28 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
     if (!_formKey.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
 
+    String? avatarUrl;
+    if (_avatar != null) {
+      setState(() => _uploadingAvatar = true);
+      try {
+        avatarUrl = await ref
+            .read(settingsRepositoryProvider)
+            .uploadAvatar(_avatar!.path);
+      } catch (e) {
+        if (mounted) {
+          showAppSnack(context, 'Could not upload photo: $e', isError: true);
+        }
+        return;
+      } finally {
+        if (mounted) setState(() => _uploadingAvatar = false);
+      }
+    }
+
     final ok = await ref.read(authControllerProvider.notifier).saveProfile(
           fullName: _fullName.text.trim(),
           email: _email.text.trim(),
           phone: _phone.text.trim(),
+          avatarUrl: avatarUrl,
         );
 
     if (!mounted) return;
@@ -89,17 +109,23 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
               children: [
                 Text('Profile Setup', style: theme.textTheme.headlineMedium),
                 const SizedBox(height: AppSpacing.sm),
-                Text("Let's get to know you better", style: theme.textTheme.bodyMedium),
+                Text("Let's get to know you better",
+                    style: theme.textTheme.bodyMedium),
                 const SizedBox(height: AppSpacing.xxl),
-
                 Center(
                   child: Stack(
                     children: [
                       CircleAvatar(
                         radius: 44,
                         backgroundColor: context.cSurfaceAlt,
-                        backgroundImage: _avatar != null ? FileImage(_avatar!) : null,
-                        child: _avatar == null
+                        backgroundImage: _avatar != null
+                            ? FileImage(_avatar!)
+                            : ((auth.user?.avatarUrl.isNotEmpty ?? false)
+                                ? NetworkImage(auth.user!.avatarUrl)
+                                    as ImageProvider
+                                : null),
+                        child: (_avatar == null &&
+                                !(auth.user?.avatarUrl.isNotEmpty ?? false))
                             ? Icon(Icons.person_rounded,
                                 size: 46, color: context.cTextTertiary)
                             : null,
@@ -115,7 +141,8 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                             decoration: BoxDecoration(
                               color: AppColors.forest,
                               shape: BoxShape.circle,
-                              border: Border.all(color: context.cSurface, width: 2),
+                              border:
+                                  Border.all(color: context.cSurface, width: 2),
                             ),
                             child: const Icon(Icons.camera_alt_rounded,
                                 size: 14, color: Colors.white),
@@ -126,7 +153,6 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xxl),
-
                 AppTextField(
                   label: 'Full Name',
                   controller: _fullName,
@@ -151,10 +177,9 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   validator: Validators.phone,
                 ),
                 const SizedBox(height: AppSpacing.xxxl),
-
                 PrimaryButton(
                   label: 'Save & Continue',
-                  loading: auth.loading,
+                  loading: auth.loading || _uploadingAvatar,
                   onPressed: _submit,
                 ),
                 const SizedBox(height: AppSpacing.xl),

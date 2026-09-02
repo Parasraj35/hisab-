@@ -5,7 +5,8 @@ import 'api_endpoints.dart';
 import 'api_exception.dart';
 
 final tokenStorageProvider = Provider<TokenStorage>((ref) => TokenStorage());
-final apiClientProvider = Provider<ApiClient>((ref) => ApiClient(ref.read(tokenStorageProvider)));
+final apiClientProvider =
+    Provider<ApiClient>((ref) => ApiClient(ref.read(tokenStorageProvider)));
 
 class ApiClient {
   ApiClient(this._storage) {
@@ -60,7 +61,8 @@ class ApiClient {
   final TokenStorage _storage;
   bool _refreshing = false;
 
-  Future<Map<String, dynamic>> get(String path, {Map<String, dynamic>? query}) =>
+  Future<Map<String, dynamic>> get(String path,
+          {Map<String, dynamic>? query}) =>
       _wrap(() => _dio.get(path, queryParameters: query));
 
   Future<Map<String, dynamic>> post(String path, {Object? data}) =>
@@ -71,6 +73,15 @@ class ApiClient {
 
   Future<Map<String, dynamic>> delete(String path, {Object? data}) =>
       _wrap(() => _dio.delete(path, data: data));
+
+  Future<Map<String, dynamic>> uploadFile(
+    String path, {
+    required String fieldName,
+    required String filePath,
+  }) =>
+      _wrap(() => _dio.post(path,
+          data: FormData.fromMap(
+              {fieldName: MultipartFile.fromFileSync(filePath)})));
 
   Future<Map<String, dynamic>> _wrap(Future<Response> Function() call) async {
     try {

@@ -17,7 +17,8 @@ class BackupInfo {
 
   String get sizeLabel {
     if (sizeBytes < 1024) return '$sizeBytes B';
-    if (sizeBytes < 1024 * 1024) return '${(sizeBytes / 1024).toStringAsFixed(1)} KB';
+    if (sizeBytes < 1024 * 1024)
+      return '${(sizeBytes / 1024).toStringAsFixed(1)} KB';
     return '${(sizeBytes / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
 
@@ -26,9 +27,9 @@ class BackupInfo {
   factory BackupInfo.fromJson(Map<String, dynamic> json) => BackupInfo(
         id: (json['_id'] ?? json['id'] ?? '').toString(),
         sizeBytes: (json['sizeBytes'] ?? 0) as int,
-        createdAt:
-            DateTime.tryParse((json['createdAt'] ?? '').toString())?.toLocal() ??
-                DateTime.now(),
+        createdAt: DateTime.tryParse((json['createdAt'] ?? '').toString())
+                ?.toLocal() ??
+            DateTime.now(),
         counts: Map<String, dynamic>.from(json['counts'] ?? {}),
       );
 }
@@ -67,7 +68,14 @@ class SettingsRepository {
   Future<void> updateProfile(Map<String, dynamic> changes) =>
       _api.patch(ApiEndpoints.updateProfile, data: changes);
 
-  Future<Map<String, dynamic>> updateSettings(Map<String, dynamic> changes) async {
+  Future<String> uploadAvatar(String filePath) async {
+    final res = await _api.uploadFile(ApiEndpoints.uploadAvatar,
+        fieldName: 'avatar', filePath: filePath);
+    return res['data']['avatarUrl'] as String;
+  }
+
+  Future<Map<String, dynamic>> updateSettings(
+      Map<String, dynamic> changes) async {
     final res = await _api.patch(ApiEndpoints.updateSettings, data: changes);
     return Map<String, dynamic>.from(res['data']['settings']);
   }
@@ -96,7 +104,8 @@ class SettingsRepository {
   }
 
   Future<void> createBackup() => _api.post(ApiEndpoints.backups);
-  Future<void> restoreBackup(String id) => _api.post(ApiEndpoints.backupRestore(id));
+  Future<void> restoreBackup(String id) =>
+      _api.post(ApiEndpoints.backupRestore(id));
   Future<void> deleteBackup(String id) => _api.delete(ApiEndpoints.backup(id));
 }
 

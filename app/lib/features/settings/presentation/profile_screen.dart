@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/formatters.dart';
@@ -13,18 +14,48 @@ import '../../auth/state/auth_controller.dart';
 import '../data/settings_repository.dart';
 
 /// Screen 22 — Profile
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  bool _uploadingAvatar = false;
+
+  Future<void> _pickAndUploadAvatar() async {
+    final picked = await ImagePicker().pickImage(
+        source: ImageSource.gallery, maxWidth: 720, imageQuality: 80);
+    if (picked == null) return;
+
+    setState(() => _uploadingAvatar = true);
+    try {
+      final repo = ref.read(settingsRepositoryProvider);
+      final avatarUrl = await repo.uploadAvatar(picked.path);
+      await repo.updateProfile({'avatarUrl': avatarUrl});
+      await ref.read(authControllerProvider.notifier).restoreSession();
+      if (mounted) showAppSnack(context, 'Photo updated');
+    } catch (e) {
+      if (mounted) {
+        showAppSnack(context, 'Could not upload photo: $e', isError: true);
+      }
+    } finally {
+      if (mounted) setState(() => _uploadingAvatar = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final user = ref.watch(authControllerProvider).user;
+    final hasPhoto = user?.avatarUrl.isNotEmpty ?? false;
 
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.canPop() ? context.pop() : context.go('/settings'),
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go('/settings'),
         ),
         title: const Text('Profile'),
       ),
@@ -34,16 +65,49 @@ class ProfileScreen extends ConsumerWidget {
         children: [
           Row(
             children: [
-              CircleAvatar(
-                radius: 32,
-                backgroundColor: AppColors.forest.withOpacity(0.10),
-                child: Text(
-                  Fmt.initials(user?.fullName ?? user?.email ?? '?'),
-                  style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.forest),
-                ),
+              Stack(
+                children: [
+                  CircleAvatar(
+                    radius: 32,
+                    backgroundColor: AppColors.forest.withOpacity(0.10),
+                    backgroundImage:
+                        hasPhoto ? NetworkImage(user!.avatarUrl) : null,
+                    child: hasPhoto
+                        ? null
+                        : Text(
+                            Fmt.initials(user?.fullName ?? user?.email ?? '?'),
+                            style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.forest),
+                          ),
+                  ),
+                  Positioned(
+                    right: -2,
+                    bottom: -2,
+                    child: InkWell(
+                      onTap: _uploadingAvatar ? null : _pickAndUploadAvatar,
+                      borderRadius: BorderRadius.circular(999),
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: AppColors.forest,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: context.cSurface, width: 2),
+                        ),
+                        child: _uploadingAvatar
+                            ? const SizedBox(
+                                height: 12,
+                                width: 12,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2, color: Colors.white),
+                              )
+                            : const Icon(Icons.camera_alt_rounded,
+                                size: 12, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(width: AppSpacing.lg),
               Expanded(
@@ -66,7 +130,6 @@ class ProfileScreen extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.xxl),
-
           SettingsGroup(
             title: 'Account',
             children: [
@@ -98,7 +161,6 @@ class ProfileScreen extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.xl),
-
           SettingsGroup(
             title: 'Support',
             children: [
@@ -118,7 +180,6 @@ class ProfileScreen extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.xxl),
-
           OutlinedButton.icon(
             onPressed: () => showDialog<void>(
               context: context,

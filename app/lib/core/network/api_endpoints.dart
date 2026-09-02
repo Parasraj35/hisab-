@@ -65,6 +65,7 @@ class ApiEndpoints {
 
   // User / security
   static const String updateProfile = '/users/me';
+  static const String uploadAvatar = '/users/me/avatar';
   static const String updateSettings = '/users/me/settings';
   static const String changePassword = '/users/me/password';
   static const String securityStatus = '/users/me/security';

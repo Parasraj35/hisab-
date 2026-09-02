@@ -45,6 +45,15 @@ export const updateProfile = catchAsync(async (req, res) => {
   return ok(res, { user: req.user.toJSON() }, 'Profile updated');
 });
 
+/** POST /users/me/avatar — multipart, field name "avatar". */
+export const uploadAvatar = catchAsync(async (req, res) => {
+  if (!req.file) throw ApiError.badRequest('No image file was uploaded');
+
+  req.user.avatarUrl = `${req.protocol}://${req.get('host')}/uploads/avatars/${req.file.filename}`;
+  await req.user.save();
+  return ok(res, { avatarUrl: req.user.avatarUrl, user: req.user.toJSON() }, 'Avatar updated');
+});
+
 /** PATCH /users/me/settings */
 export const updateSettings = catchAsync(async (req, res) => {
   const { notifications, ...rest } = req.body;

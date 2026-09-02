@@ -4,6 +4,7 @@
 # Node
 backend/node_modules/
 backend/*.log
+backend/uploads/
 
 # Flutter/Dart
 app/.dart_tool/
