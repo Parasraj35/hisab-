@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
+import '../../core/theme/clay.dart';
 import '../../core/utils/formatters.dart';
 
 /// The paired Income / Expense panels on the dashboard, reused on History and
@@ -37,6 +38,7 @@ class SummaryChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: soft,
         borderRadius: BorderRadius.circular(compact ? 12 : 16),
+        boxShadow: Clay.shadows(color, small: true),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

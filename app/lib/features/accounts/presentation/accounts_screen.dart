@@ -11,6 +11,7 @@ import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/app_dropdown.dart';
 import '../../../shared/widgets/app_snackbar.dart';
 import '../../../shared/widgets/app_text_field.dart';
+import '../../../shared/widgets/clay_fab.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/primary_button.dart';
@@ -48,20 +49,19 @@ class AccountsScreen extends ConsumerWidget {
         ],
       ),
       bottomNavigationBar: const AppBottomNav(currentIndex: 1),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => showAccountSheet(context, ref),
-        shape: const CircleBorder(),
-        child: const Icon(Icons.add, size: 28),
-      ),
+      floatingActionButton:
+          ClayFab(onTap: () => showAccountSheet(context, ref)),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       body: accountsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, _) => ErrorView(message: err.toString(), onRetry: () => _refresh(ref)),
+        error: (err, _) =>
+            ErrorView(message: err.toString(), onRetry: () => _refresh(ref)),
         data: (payload) {
           if (payload.accounts.isEmpty) {
             return EmptyState(
               title: 'No accounts yet',
-              message: 'Add a cash, bank or wallet account to start tracking money.',
+              message:
+                  'Add a cash, bank or wallet account to start tracking money.',
               actionLabel: 'Add Account',
               onAction: () => showAccountSheet(context, ref),
             );
@@ -85,7 +85,8 @@ class AccountsScreen extends ConsumerWidget {
                         fit: BoxFit.scaleDown,
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          Fmt.currency(payload.totalBalance, code: payload.currency),
+                          Fmt.currency(payload.totalBalance,
+                              code: payload.currency),
                           style: TextStyle(
                               fontSize: 26,
                               fontWeight: FontWeight.w700,
@@ -93,14 +94,14 @@ class AccountsScreen extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(height: AppSpacing.xs),
-                      Text('Across ${payload.accounts.length} account'
+                      Text(
+                          'Across ${payload.accounts.length} account'
                           '${payload.accounts.length == 1 ? '' : 's'}',
                           style: Theme.of(context).textTheme.bodySmall),
                     ],
                   ),
                 ),
                 const SizedBox(height: AppSpacing.lg),
-
                 AppCard(
                   padding: const EdgeInsets.symmetric(
                       horizontal: AppSpacing.lg, vertical: AppSpacing.xs),
@@ -116,7 +117,6 @@ class AccountsScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xl),
-
                 PrimaryButton(
                   label: 'Add Account',
                   icon: Icons.add,
@@ -130,7 +130,8 @@ class AccountsScreen extends ConsumerWidget {
     );
   }
 
-  void _showAccountActions(BuildContext context, WidgetRef ref, Account account) {
+  void _showAccountActions(
+      BuildContext context, WidgetRef ref, Account account) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Theme.of(context).cardTheme.color,
@@ -161,11 +162,14 @@ class AccountsScreen extends ConsumerWidget {
                 title: const Text('Set as default'),
                 onTap: () async {
                   Navigator.pop(sheetContext);
-                  await ref.read(accountRepositoryProvider).setDefault(account.id);
+                  await ref
+                      .read(accountRepositoryProvider)
+                      .setDefault(account.id);
                   ref.invalidate(accountsProvider);
                   ref.invalidate(dashboardOverviewProvider);
                   if (context.mounted) {
-                    showAppSnack(context, '${account.name} is now your default');
+                    showAppSnack(
+                        context, '${account.name} is now your default');
                   }
                 },
               ),
@@ -203,16 +207,21 @@ class AccountsScreen extends ConsumerWidget {
             onPressed: () async {
               Navigator.pop(dialogContext);
               try {
-                final archived =
-                    await ref.read(accountRepositoryProvider).remove(account.id);
+                final archived = await ref
+                    .read(accountRepositoryProvider)
+                    .remove(account.id);
                 ref.invalidate(accountsProvider);
                 ref.invalidate(dashboardOverviewProvider);
                 if (context.mounted) {
-                  showAppSnack(context,
-                      archived ? '${account.name} archived' : '${account.name} deleted');
+                  showAppSnack(
+                      context,
+                      archived
+                          ? '${account.name} archived'
+                          : '${account.name} deleted');
                 }
               } catch (e) {
-                if (context.mounted) showAppSnack(context, e.toString(), isError: true);
+                if (context.mounted)
+                  showAppSnack(context, e.toString(), isError: true);
               }
             },
             child:
@@ -225,7 +234,8 @@ class AccountsScreen extends ConsumerWidget {
 }
 
 /// Add / edit account sheet — shared by the Accounts screen and the FAB.
-void showAccountSheet(BuildContext context, WidgetRef ref, {Account? existing}) {
+void showAccountSheet(BuildContext context, WidgetRef ref,
+    {Account? existing}) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -340,9 +350,11 @@ class _AccountFormSheetState extends ConsumerState<_AccountFormSheet> {
               label: 'Opening Balance',
               controller: _balance,
               hint: '0.00',
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
               validator: (v) {
-                if (v == null || v.trim().isEmpty) return 'Enter an opening balance';
+                if (v == null || v.trim().isEmpty)
+                  return 'Enter an opening balance';
                 if (double.tryParse(v.replaceAll(',', '')) == null) {
                   return 'Enter a valid amount';
                 }

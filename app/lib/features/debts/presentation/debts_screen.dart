@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/clay.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/utils/validators.dart';
 import '../../../shared/widgets/app_snackbar.dart';
@@ -34,7 +35,8 @@ class _DebtsScreenState extends ConsumerState<DebtsScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.canPop() ? context.pop() : context.go('/dashboard'),
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go('/dashboard'),
         ),
         title: const Text('Debt / Lending'),
       ),
@@ -64,13 +66,13 @@ class _DebtsScreenState extends ConsumerState<DebtsScreen> {
                   onChanged: (d) => setState(() => _direction = d),
                 ),
                 const SizedBox(height: AppSpacing.xl),
-
                 Row(
                   children: [
                     Expanded(
                       child: _TotalCard(
                         label: _isLent ? 'Total Lent' : 'Total Borrowed',
-                        amount: _isLent ? summary.lentTotal : summary.borrowedTotal,
+                        amount:
+                            _isLent ? summary.lentTotal : summary.borrowedTotal,
                         currency: payload.currency,
                         color: AppColors.forest,
                       ),
@@ -79,8 +81,9 @@ class _DebtsScreenState extends ConsumerState<DebtsScreen> {
                     Expanded(
                       child: _TotalCard(
                         label: _isLent ? 'Total Received' : 'Total Repaid',
-                        amount:
-                            _isLent ? summary.lentReceived : summary.borrowedRepaid,
+                        amount: _isLent
+                            ? summary.lentReceived
+                            : summary.borrowedRepaid,
                         currency: payload.currency,
                         color: AppColors.income,
                       ),
@@ -88,7 +91,6 @@ class _DebtsScreenState extends ConsumerState<DebtsScreen> {
                   ],
                 ),
                 const SizedBox(height: AppSpacing.xl),
-
                 if (visible.isEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: AppSpacing.xxxl),
@@ -108,11 +110,11 @@ class _DebtsScreenState extends ConsumerState<DebtsScreen> {
                         child: _DebtCard(
                           debt: debt,
                           currency: payload.currency,
-                          onSettle: () => _showSettleSheet(context, debt, payload.currency),
+                          onSettle: () =>
+                              _showSettleSheet(context, debt, payload.currency),
                           onDelete: () => _confirmDelete(context, debt),
                         ),
                       )),
-
                 if (visible.isNotEmpty) ...[
                   const SizedBox(height: AppSpacing.lg),
                   PrimaryButton(
@@ -158,7 +160,8 @@ class _DebtsScreenState extends ConsumerState<DebtsScreen> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Delete record?'),
-        content: Text('This removes the ${debt.personName} record and its payment history.'),
+        content: Text(
+            'This removes the ${debt.personName} record and its payment history.'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(dialogContext),
@@ -176,7 +179,8 @@ class _DebtsScreenState extends ConsumerState<DebtsScreen> {
                 }
               }
             },
-            child: const Text('Delete', style: TextStyle(color: AppColors.expense)),
+            child: const Text('Delete',
+                style: TextStyle(color: AppColors.expense)),
           ),
         ],
       ),
@@ -225,7 +229,8 @@ class _DirectionToggle extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: context.cBorder),
       ),
-      child: Row(children: [tab('lent', 'I Lent'), tab('borrowed', 'I Borrowed')]),
+      child:
+          Row(children: [tab('lent', 'I Lent'), tab('borrowed', 'I Borrowed')]),
     );
   }
 }
@@ -250,7 +255,7 @@ class _TotalCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-        border: Border.all(color: context.cBorder),
+        boxShadow: Clay.shadows(context.cBackground, small: true),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -303,7 +308,7 @@ class _DebtCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-        border: Border.all(color: context.cBorder),
+        boxShadow: Clay.shadows(context.cBackground, small: true),
       ),
       child: Column(
         children: [
@@ -328,7 +333,9 @@ class _DebtCard extends StatelessWidget {
                     Text(debt.personName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.titleMedium!
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium!
                             .copyWith(fontSize: 14)),
                     const SizedBox(height: 2),
                     Text(
@@ -346,8 +353,12 @@ class _DebtCard extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(Fmt.currency(debt.amount, code: '', decimals: false).trim(),
-                      style: Theme.of(context).textTheme.titleMedium!
+                  Text(
+                      Fmt.currency(debt.amount, code: '', decimals: false)
+                          .trim(),
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium!
                           .copyWith(fontSize: 14)),
                   const SizedBox(height: 3),
                   Container(
@@ -403,7 +414,8 @@ class _DebtCard extends StatelessWidget {
                     onPressed: onSettle,
                     icon: const Icon(Icons.check_circle_outline, size: 16),
                     label: const Text('Record Payment',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.w600)),
                   ),
                 ),
               if (debt.isPaid)
@@ -522,7 +534,8 @@ class _AddDebtSheetState extends ConsumerState<_AddDebtSheet> {
               label: 'Amount',
               controller: _amount,
               hint: '0.00',
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
               validator: Validators.amount,
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -541,7 +554,8 @@ class _AddDebtSheetState extends ConsumerState<_AddDebtSheet> {
                     height: AppSpacing.fieldHeight,
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(AppSpacing.fieldRadius),
+                      borderRadius:
+                          BorderRadius.circular(AppSpacing.fieldRadius),
                       border: Border.all(color: context.cBorder),
                     ),
                     child: Row(
@@ -551,7 +565,9 @@ class _AddDebtSheetState extends ConsumerState<_AddDebtSheet> {
                         const SizedBox(width: AppSpacing.md),
                         Expanded(
                           child: Text(
-                            _dueDate == null ? 'No due date' : Fmt.date(_dueDate!),
+                            _dueDate == null
+                                ? 'No due date'
+                                : Fmt.date(_dueDate!),
                             style: TextStyle(
                                 color: _dueDate == null
                                     ? context.cTextTertiary
@@ -578,7 +594,8 @@ class _AddDebtSheetState extends ConsumerState<_AddDebtSheet> {
               textCapitalization: TextCapitalization.sentences,
             ),
             const SizedBox(height: AppSpacing.xxl),
-            PrimaryButton(label: 'Save Record', loading: _saving, onPressed: _save),
+            PrimaryButton(
+                label: 'Save Record', loading: _saving, onPressed: _save),
           ],
         ),
       ),
@@ -656,7 +673,8 @@ class _SettleSheetState extends ConsumerState<_SettleSheet> {
             AppTextField(
               label: 'Amount Received',
               controller: _amount,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
               validator: (v) {
                 final base = Validators.amount(v);
                 if (base != null) return base;

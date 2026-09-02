@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/clay.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/utils/icon_map.dart';
 import '../../../core/utils/validators.dart';
@@ -26,7 +27,8 @@ class SavingsScreen extends ConsumerWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.canPop() ? context.pop() : context.go('/dashboard'),
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go('/dashboard'),
         ),
         title: const Text('Savings'),
         actions: [
@@ -54,7 +56,6 @@ class SavingsScreen extends ConsumerWidget {
             children: [
               _SavingsHeader(payload: payload),
               const SizedBox(height: AppSpacing.xl),
-
               if (payload.goals.isEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: AppSpacing.xl),
@@ -73,14 +74,13 @@ class SavingsScreen extends ConsumerWidget {
                       child: _GoalCard(
                         goal: goal,
                         currency: payload.currency,
-                        onContribute: () =>
-                            _showContributeSheet(context, goal, payload.currency, false),
-                        onWithdraw: () =>
-                            _showContributeSheet(context, goal, payload.currency, true),
+                        onContribute: () => _showContributeSheet(
+                            context, goal, payload.currency, false),
+                        onWithdraw: () => _showContributeSheet(
+                            context, goal, payload.currency, true),
                         onDelete: () => _confirmDelete(context, ref, goal),
                       ),
                     )),
-
               if (payload.goals.isNotEmpty) ...[
                 const SizedBox(height: AppSpacing.lg),
                 PrimaryButton(
@@ -108,8 +108,8 @@ class SavingsScreen extends ConsumerWidget {
     );
   }
 
-  void _showContributeSheet(
-      BuildContext context, SavingsGoal goal, String currency, bool isWithdrawal) {
+  void _showContributeSheet(BuildContext context, SavingsGoal goal,
+      String currency, bool isWithdrawal) {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -130,7 +130,8 @@ class SavingsScreen extends ConsumerWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Delete goal?'),
-        content: Text('This removes ${goal.name} and its contribution history.'),
+        content:
+            Text('This removes ${goal.name} and its contribution history.'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(dialogContext),
@@ -148,7 +149,8 @@ class SavingsScreen extends ConsumerWidget {
                 }
               }
             },
-            child: const Text('Delete', style: TextStyle(color: AppColors.expense)),
+            child: const Text('Delete',
+                style: TextStyle(color: AppColors.expense)),
           ),
         ],
       ),
@@ -181,14 +183,16 @@ class _SavingsHeader extends StatelessWidget {
             child: Text(
               Fmt.currency(payload.totalSaved, code: payload.currency),
               style: const TextStyle(
-                  color: Colors.white, fontSize: 26, fontWeight: FontWeight.w700),
+                  color: Colors.white,
+                  fontSize: 26,
+                  fontWeight: FontWeight.w700),
             ),
           ),
           const SizedBox(height: 4),
           Text(
             'Goal: ${Fmt.currency(payload.totalTarget, code: payload.currency)}',
-            style: TextStyle(
-                color: Colors.white.withOpacity(0.65), fontSize: 12),
+            style:
+                TextStyle(color: Colors.white.withOpacity(0.65), fontSize: 12),
           ),
           const SizedBox(height: AppSpacing.lg),
           Row(
@@ -242,8 +246,9 @@ class _GoalCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-        border: Border.all(
-            color: goal.isCompleted ? AppColors.accent : context.cBorder),
+        boxShadow: Clay.shadows(
+            goal.isCompleted ? AppColors.accent : context.cBackground,
+            small: true),
       ),
       child: Column(
         children: [
@@ -269,7 +274,9 @@ class _GoalCard extends StatelessWidget {
                           child: Text(goal.name,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.titleMedium!
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium!
                                   .copyWith(fontSize: 14)),
                         ),
                         if (goal.isCompleted) ...[
@@ -292,8 +299,11 @@ class _GoalCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    Fmt.currency(goal.savedAmount, code: '', decimals: false).trim(),
-                    style: Theme.of(context).textTheme.titleMedium!
+                    Fmt.currency(goal.savedAmount, code: '', decimals: false)
+                        .trim(),
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium!
                         .copyWith(fontSize: 14),
                   ),
                   Text('${goal.progressPercent}%',
@@ -337,7 +347,8 @@ class _GoalCard extends StatelessWidget {
                   onPressed: onContribute,
                   icon: const Icon(Icons.add, size: 16),
                   label: const Text('Add Money',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                 ),
               ),
               Expanded(
@@ -345,7 +356,8 @@ class _GoalCard extends StatelessWidget {
                   onPressed: goal.savedAmount > 0 ? onWithdraw : null,
                   icon: const Icon(Icons.remove, size: 16),
                   label: const Text('Withdraw',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                   style: TextButton.styleFrom(
                       foregroundColor: context.cTextSecondary),
                 ),
@@ -450,14 +462,16 @@ class _GoalFormSheetState extends ConsumerState<_GoalFormSheet> {
               label: 'Target Amount',
               controller: _target,
               hint: '60,000',
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
               validator: Validators.amount,
             ),
             const SizedBox(height: AppSpacing.lg),
             AppTextField(
               label: 'Already Saved (Optional)',
               controller: _starting,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
               validator: (v) {
                 if (v == null || v.trim().isEmpty) return null;
                 final value = double.tryParse(v.replaceAll(',', ''));
@@ -499,7 +513,8 @@ class _GoalFormSheetState extends ConsumerState<_GoalFormSheet> {
               }).toList(),
             ),
             const SizedBox(height: AppSpacing.xxl),
-            PrimaryButton(label: 'Create Goal', loading: _saving, onPressed: _save),
+            PrimaryButton(
+                label: 'Create Goal', loading: _saving, onPressed: _save),
           ],
         ),
       ),
@@ -588,7 +603,8 @@ class _ContributeSheetState extends ConsumerState<_ContributeSheet> {
               label: 'Amount',
               controller: _amount,
               hint: '0.00',
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
               validator: (v) {
                 final base = Validators.amount(v);
                 if (base != null) return base;

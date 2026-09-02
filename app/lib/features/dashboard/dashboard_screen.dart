@@ -7,7 +7,9 @@ import '../../core/theme/clay.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/utils/icon_map.dart';
 import '../../shared/widgets/app_bottom_nav.dart';
+import '../../shared/widgets/clay_fab.dart';
 import '../../shared/widgets/error_view.dart';
+import '../../shared/widgets/pressable.dart';
 import '../../shared/widgets/summary_chip.dart';
 import '../../shared/widgets/transaction_tile.dart';
 import '../accounts/data/account_model.dart';
@@ -118,19 +120,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
         ],
       ),
-      floatingActionButton: _Pressable(
-        onTap: () => _showQuickAdd(context),
-        child: Container(
-          height: 60,
-          width: 60,
-          decoration: BoxDecoration(
-            gradient: Clay.fill(context.cAccent),
-            shape: BoxShape.circle,
-            boxShadow: Clay.shadows(context.cAccent),
-          ),
-          child: const Icon(Icons.add, size: 28, color: Colors.white),
-        ),
-      ),
+      floatingActionButton: ClayFab(onTap: () => _showQuickAdd(context)),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: const AppBottomNav(currentIndex: 0),
       body: overviewAsync.when(
@@ -370,38 +360,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 }
 
-/// Wraps a tap target with a small press-down scale. This is the only motion
-/// on the screen besides the balance count-up — deliberately, rather than
-/// animating every card on entrance.
-class _Pressable extends StatefulWidget {
-  const _Pressable({required this.child, required this.onTap});
-  final Widget child;
-  final VoidCallback onTap;
-
-  @override
-  State<_Pressable> createState() => _PressableState();
-}
-
-class _PressableState extends State<_Pressable> {
-  bool _pressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.onTap,
-      onTapDown: (_) => setState(() => _pressed = true),
-      onTapUp: (_) => setState(() => _pressed = false),
-      onTapCancel: () => setState(() => _pressed = false),
-      child: AnimatedScale(
-        scale: _pressed ? 0.92 : 1.0,
-        duration: const Duration(milliseconds: 120),
-        curve: Curves.easeOut,
-        child: widget.child,
-      ),
-    );
-  }
-}
-
 class _SectionTitle extends StatelessWidget {
   const _SectionTitle({required this.title, this.action, this.onAction});
 
@@ -627,7 +585,7 @@ class _QuickAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _Pressable(
+    return Pressable(
       onTap: onTap,
       child: SizedBox(
         width: 72,
@@ -750,7 +708,7 @@ class _BalanceHeader extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppSpacing.md),
-          _Pressable(
+          Pressable(
             onTap: onToggleHidden,
             child: Container(
               height: 44,
