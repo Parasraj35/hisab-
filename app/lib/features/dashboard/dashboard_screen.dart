@@ -65,7 +65,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
     // "HISAB" only needs saying once — on a screen someone opens every day,
     // their own name does more work than the brand name repeated back to them.
-    final fullName = ref.watch(authControllerProvider).user?.fullName ?? '';
+    final user = ref.watch(authControllerProvider).user;
+    final fullName = user?.fullName ?? '';
     final firstName = fullName.trim().isEmpty
         ? null
         : fullName.trim().split(RegExp(r'\s+')).first;
@@ -84,7 +85,22 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         scrolledUnderElevation: 0,
         centerTitle: false,
         leading: IconButton(
-          icon: const Icon(Icons.menu_rounded),
+          icon: CircleAvatar(
+            radius: 16,
+            backgroundColor: Colors.white.withOpacity(0.16),
+            backgroundImage: (user?.avatarUrl.isNotEmpty ?? false)
+                ? NetworkImage(user!.avatarUrl)
+                : null,
+            child: (user?.avatarUrl.isNotEmpty ?? false)
+                ? null
+                : Text(
+                    Fmt.initials(user?.fullName ?? user?.email ?? '?'),
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700),
+                  ),
+          ),
           onPressed: () => context.push('/settings'),
         ),
         title: Text(firstName != null ? '$greeting, $firstName' : greeting),
@@ -225,12 +241,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     onTap: () => context.push('/transfer'),
                   ),
                   _QuickAction(
-                    icon: Icons.more_horiz_rounded,
-                    label: 'More',
-                    color: AppColors.quickNeutral,
-                    soft: context.quickTint(
-                        AppColors.quickNeutral, AppColors.quickNeutralSoft),
-                    onTap: () => context.push('/settings'),
+                    icon: Icons.handshake_outlined,
+                    label: 'Lend/Borrow',
+                    color: context.cWarning,
+                    soft: context.cWarning.withOpacity(0.12),
+                    onTap: () => context.push('/debts'),
                   ),
                 ],
               ),
