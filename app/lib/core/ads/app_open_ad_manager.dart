@@ -3,17 +3,12 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 /// Loads a Google AdMob App Open ad on launch and shows it once, the first
 /// time the app is ready to display it after the splash screen.
-///
-/// The Android ID is HISAB's real AdMob App Open ad unit. [_iosAdUnitId] is
-/// still Google's public TEST ID — replace it with HISAB's real iOS App
-/// Open ad unit once that AdMob app/ad unit is created, alongside the
-/// app-level ID in ios/Runner/Info.plist.
 class AppOpenAdManager {
   AppOpenAdManager._();
   static final instance = AppOpenAdManager._();
 
   static const _androidAdUnitId = 'ca-app-pub-2955087757761518/7752697582';
-  static const _iosAdUnitId = 'ca-app-pub-3940256099942544/5575463023';
+  static const _iosAdUnitId = 'ca-app-pub-2955087757761518/5280623084';
 
   static const _adMaxAge = Duration(hours: 4);
 
