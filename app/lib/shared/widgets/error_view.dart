@@ -17,14 +17,16 @@ class ErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.cloud_off_rounded, size: 44, color: context.cTextTertiary),
+            Icon(Icons.cloud_off_rounded,
+                size: 44, color: context.cTextTertiary),
             const SizedBox(height: AppSpacing.lg),
             Text(message,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium),
             if (onRetry != null) ...[
               const SizedBox(height: AppSpacing.xl),
-              PrimaryButton(label: 'Try Again', onPressed: onRetry, expanded: false),
+              PrimaryButton(
+                  label: 'Try Again', onPressed: onRetry, expanded: false),
             ],
           ],
         ),

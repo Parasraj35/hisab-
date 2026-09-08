@@ -63,6 +63,7 @@ IconData iconForAccountType(String type) {
 Color colorFromHex(String? hex, {Color fallback = const Color(0xFF16A34A)}) {
   if (hex == null || hex.isEmpty) return fallback;
   final cleaned = hex.replaceAll('#', '');
-  final value = int.tryParse(cleaned.length == 6 ? 'FF$cleaned' : cleaned, radix: 16);
+  final value =
+      int.tryParse(cleaned.length == 6 ? 'FF$cleaned' : cleaned, radix: 16);
   return value == null ? fallback : Color(value);
 }

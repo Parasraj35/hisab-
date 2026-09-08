@@ -91,7 +91,8 @@ class HelpScreen extends StatelessWidget {
             decoration: BoxDecoration(
               color: Theme.of(context).cardTheme.color,
               borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-              boxShadow: Clay.shadows(context.cBackground, small: true),
+              boxShadow:
+                  Clay.shadows(context, context.cBackground, small: true),
             ),
             child: Column(
               children: _faqs.asMap().entries.map((entry) {

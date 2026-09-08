@@ -82,7 +82,8 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.canPop() ? context.pop() : context.go('/settings'),
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go('/settings'),
         ),
         title: const Text('Backup & Restore'),
       ),
@@ -127,7 +128,9 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
                                 latest == null
                                     ? 'No backups yet'
                                     : '${Fmt.date(latest.createdAt)} · ${Fmt.time(latest.createdAt)}',
-                                style: Theme.of(context).textTheme.titleMedium!
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium!
                                     .copyWith(fontSize: 14),
                               ),
                               if (latest != null) ...[
@@ -147,7 +150,6 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
                 ),
               ),
               const SizedBox(height: AppSpacing.xl),
-
               PrimaryButton(
                 label: 'Create Backup',
                 icon: Icons.backup_outlined,
@@ -155,16 +157,15 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
                 onPressed: _createBackup,
               ),
               const SizedBox(height: AppSpacing.xxl),
-
               Text('Available Backups',
                   style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: AppSpacing.sm),
-
               if (backups.isEmpty)
                 AppCard(
                   child: Center(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+                      padding:
+                          const EdgeInsets.symmetric(vertical: AppSpacing.lg),
                       child: Text('Nothing backed up yet',
                           style: Theme.of(context).textTheme.bodySmall),
                     ),
@@ -172,7 +173,8 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
                 )
               else
                 AppCard(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                   child: Column(
                     children: backups.asMap().entries.map((entry) {
                       final backup = entry.value;
@@ -185,7 +187,8 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
                               children: [
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         '${Fmt.date(backup.createdAt)} · '
@@ -198,14 +201,17 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
                                       Text(
                                         '${backup.sizeLabel} · '
                                         '${backup.transactionCount} transactions',
-                                        style: Theme.of(context).textTheme.labelSmall,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelSmall,
                                       ),
                                     ],
                                   ),
                                 ),
                                 TextButton(
-                                  onPressed:
-                                      _busy ? null : () => _confirmRestore(backup),
+                                  onPressed: _busy
+                                      ? null
+                                      : () => _confirmRestore(backup),
                                   child: const Text('Restore',
                                       style: TextStyle(
                                           fontSize: 12,
@@ -231,7 +237,6 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
                     }).toList(),
                   ),
                 ),
-
               const SizedBox(height: AppSpacing.lg),
               Text(
                 'HISAB keeps your 10 most recent backups. Restoring replaces your '

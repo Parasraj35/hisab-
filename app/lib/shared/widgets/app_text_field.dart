@@ -41,8 +41,9 @@ class AppTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: Theme.of(context).textTheme.bodySmall!.copyWith(
-              color: context.cTextSecondary, fontWeight: FontWeight.w500)),
+        Text(label,
+            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                color: context.cTextSecondary, fontWeight: FontWeight.w500)),
         const SizedBox(height: AppSpacing.sm),
         TextFormField(
           controller: controller,
@@ -86,7 +87,8 @@ class AmountField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg, vertical: AppSpacing.md),
       decoration: BoxDecoration(
         color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
@@ -101,16 +103,21 @@ class AmountField extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Text(currency, style: Theme.of(context).textTheme.titleMedium!
-                  .copyWith(color: context.cTextSecondary)),
+              Text(currency,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium!
+                      .copyWith(color: context.cTextSecondary)),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: TextFormField(
                   controller: controller,
                   validator: validator,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                    FilteringTextInputFormatter.allow(
+                        RegExp(r'^\d*\.?\d{0,2}')),
                   ],
                   style: TextStyle(
                       fontSize: 26,

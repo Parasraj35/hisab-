@@ -29,14 +29,16 @@ class AppDropdown<T> extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: Theme.of(context).textTheme.bodySmall!.copyWith(
-              color: context.cTextSecondary, fontWeight: FontWeight.w500)),
+        Text(label,
+            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                color: context.cTextSecondary, fontWeight: FontWeight.w500)),
         const SizedBox(height: AppSpacing.sm),
         DropdownButtonFormField<T>(
           value: value,
           isExpanded: true,
           validator: validator,
-          icon: Icon(Icons.keyboard_arrow_down_rounded, color: context.cTextSecondary),
+          icon: Icon(Icons.keyboard_arrow_down_rounded,
+              color: context.cTextSecondary),
           hint: hint == null ? null : Text(hint!),
           borderRadius: BorderRadius.circular(AppSpacing.fieldRadius),
           items: items
@@ -49,7 +51,8 @@ class AppDropdown<T> extends StatelessWidget {
                           const SizedBox(width: AppSpacing.md),
                         ],
                         Flexible(
-                          child: Text(itemLabel(item), overflow: TextOverflow.ellipsis),
+                          child: Text(itemLabel(item),
+                              overflow: TextOverflow.ellipsis),
                         ),
                       ],
                     ),

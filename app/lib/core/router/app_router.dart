@@ -55,16 +55,24 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     refreshListenable: refresh,
     routes: [
       GoRoute(path: '/', builder: (_, __) => const SplashScreen()),
-      GoRoute(path: '/onboarding', builder: (_, __) => const OnboardingScreen()),
+      GoRoute(
+          path: '/onboarding', builder: (_, __) => const OnboardingScreen()),
       GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
       GoRoute(path: '/signup', builder: (_, __) => const SignupScreen()),
-      GoRoute(path: '/forgot-password', builder: (_, __) => const ForgotPasswordScreen()),
+      GoRoute(
+          path: '/forgot-password',
+          builder: (_, __) => const ForgotPasswordScreen()),
       GoRoute(path: '/verify-otp', builder: (_, __) => const OtpScreen()),
-      GoRoute(path: '/profile-setup', builder: (_, __) => const ProfileSetupScreen()),
-      GoRoute(path: '/account-setup', builder: (_, __) => const AccountSetupScreen()),
+      GoRoute(
+          path: '/profile-setup',
+          builder: (_, __) => const ProfileSetupScreen()),
+      GoRoute(
+          path: '/account-setup',
+          builder: (_, __) => const AccountSetupScreen()),
       GoRoute(path: '/dashboard', builder: (_, __) => const DashboardScreen()),
       GoRoute(path: '/accounts', builder: (_, __) => const AccountsScreen()),
-      GoRoute(path: '/add-expense', builder: (_, __) => const AddExpenseScreen()),
+      GoRoute(
+          path: '/add-expense', builder: (_, __) => const AddExpenseScreen()),
       GoRoute(path: '/add-income', builder: (_, __) => const AddIncomeScreen()),
 
       // Registered ahead of their batch so every link on a built screen works.
@@ -86,17 +94,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/accounts/:id',
-        builder: (_, state) => AccountDetailScreen(id: state.pathParameters['id']!),
+        builder: (_, state) =>
+            AccountDetailScreen(id: state.pathParameters['id']!),
       ),
       GoRoute(path: '/reports', builder: (_, __) => const ReportsScreen()),
       GoRoute(path: '/export', builder: (_, __) => const ExportScreen()),
-      GoRoute(path: '/notifications', builder: (_, __) => const NotificationsScreen()),
+      GoRoute(
+          path: '/notifications',
+          builder: (_, __) => const NotificationsScreen()),
       GoRoute(path: '/settings', builder: (_, __) => const SettingsScreen()),
       GoRoute(path: '/search', builder: (_, __) => const SearchScreen()),
       GoRoute(path: '/backup', builder: (_, __) => const BackupScreen()),
       GoRoute(path: '/security', builder: (_, __) => const SecurityScreen()),
       GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
-      GoRoute(path: '/categories', builder: (_, __) => const CategoriesScreen()),
+      GoRoute(
+          path: '/categories', builder: (_, __) => const CategoriesScreen()),
       GoRoute(path: '/help', builder: (_, __) => const HelpScreen()),
     ],
     errorBuilder: (_, state) =>
@@ -116,7 +128,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       switch (status) {
         case AuthStatus.unauthenticated:
           if (!seenOnboarding && loc != '/onboarding') return '/onboarding';
-          const publicRoutes = {'/login', '/signup', '/forgot-password', '/onboarding'};
+          const publicRoutes = {
+            '/login',
+            '/signup',
+            '/forgot-password',
+            '/onboarding'
+          };
           return publicRoutes.contains(loc) ? null : '/login';
         case AuthStatus.needsOtp:
           return loc == '/verify-otp' ? null : '/verify-otp';
@@ -126,8 +143,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           return loc == '/account-setup' ? null : '/account-setup';
         case AuthStatus.authenticated:
           const gatedRoutes = {
-            '/', '/login', '/signup', '/onboarding',
-            '/verify-otp', '/profile-setup', '/account-setup',
+            '/',
+            '/login',
+            '/signup',
+            '/onboarding',
+            '/verify-otp',
+            '/profile-setup',
+            '/account-setup',
           };
           return gatedRoutes.contains(loc) ? '/dashboard' : null;
         case AuthStatus.unknown:

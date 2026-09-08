@@ -3,8 +3,8 @@ import '../../../core/network/api_client.dart';
 import '../../../core/network/api_endpoints.dart';
 import 'debt_model.dart';
 
-final debtRepositoryProvider =
-    Provider<DebtRepository>((ref) => DebtRepository(ref.read(apiClientProvider)));
+final debtRepositoryProvider = Provider<DebtRepository>(
+    (ref) => DebtRepository(ref.read(apiClientProvider)));
 
 class DebtRepository {
   DebtRepository(this._api);
@@ -53,5 +53,5 @@ class DebtRepository {
 
 /// Fetches everything once; both tabs filter the same payload client-side,
 /// so switching between "I Lent" and "I Borrowed" is instant.
-final debtsProvider =
-    FutureProvider<DebtsPayload>((ref) => ref.read(debtRepositoryProvider).list());
+final debtsProvider = FutureProvider<DebtsPayload>(
+    (ref) => ref.read(debtRepositoryProvider).list());

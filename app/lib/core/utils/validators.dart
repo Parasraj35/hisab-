@@ -6,14 +6,16 @@ class Validators {
 
   static String? email(String? v) {
     if (v == null || v.trim().isEmpty) return 'Email is required';
-    final ok = RegExp(r'^[\w\.\-\+]+@([\w\-]+\.)+[\w\-]{2,}$').hasMatch(v.trim());
+    final ok =
+        RegExp(r'^[\w\.\-\+]+@([\w\-]+\.)+[\w\-]{2,}$').hasMatch(v.trim());
     return ok ? null : 'Enter a valid email address';
   }
 
   static String? emailOrPhone(String? v) {
     if (v == null || v.trim().isEmpty) return 'Email or phone is required';
     final value = v.trim();
-    final isEmail = RegExp(r'^[\w\.\-\+]+@([\w\-]+\.)+[\w\-]{2,}$').hasMatch(value);
+    final isEmail =
+        RegExp(r'^[\w\.\-\+]+@([\w\-]+\.)+[\w\-]{2,}$').hasMatch(value);
     final isPhone = RegExp(r'^\+?[0-9\s\-]{7,15}$').hasMatch(value);
     return (isEmail || isPhone) ? null : 'Enter a valid email or phone number';
   }

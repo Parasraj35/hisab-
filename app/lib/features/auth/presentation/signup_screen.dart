@@ -79,7 +79,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 Text('Start tracking your money in a minute',
                     style: theme.textTheme.bodyMedium),
                 const SizedBox(height: AppSpacing.xxxl),
-
                 AppTextField(
                   label: 'Email',
                   controller: _email,
@@ -114,7 +113,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xxl),
-
                 PrimaryButton(
                   label: 'Create Account',
                   loading: auth.loading,

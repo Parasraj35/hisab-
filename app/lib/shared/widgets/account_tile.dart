@@ -31,7 +31,8 @@ class AccountTile extends StatelessWidget {
         InkWell(
           onTap: onTap,
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical: dense ? AppSpacing.sm : AppSpacing.md),
+            padding: EdgeInsets.symmetric(
+                vertical: dense ? AppSpacing.sm : AppSpacing.md),
             child: Row(
               children: [
                 Container(
@@ -41,7 +42,8 @@ class AccountTile extends StatelessWidget {
                     color: color.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(iconForAccountType(account.type), size: 19, color: color),
+                  child: Icon(iconForAccountType(account.type),
+                      size: 19, color: color),
                 ),
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
@@ -88,8 +90,10 @@ class AccountTile extends StatelessWidget {
                 const SizedBox(width: AppSpacing.sm),
                 trailing ??
                     Text(
-                      Fmt.currency(account.currentBalance, code: account.currency),
-                      style: theme.textTheme.titleMedium!.copyWith(fontSize: 13),
+                      Fmt.currency(account.currentBalance,
+                          code: account.currency),
+                      style:
+                          theme.textTheme.titleMedium!.copyWith(fontSize: 13),
                     ),
               ],
             ),

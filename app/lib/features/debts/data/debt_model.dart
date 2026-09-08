@@ -23,7 +23,8 @@ class Debt {
 
   double get outstanding => amount - settledAmount;
   bool get isPaid => status == 'paid';
-  double get progress => amount == 0 ? 0 : (settledAmount / amount).clamp(0.0, 1.0);
+  double get progress =>
+      amount == 0 ? 0 : (settledAmount / amount).clamp(0.0, 1.0);
 
   /// True when money is still owed and the due date has passed.
   bool get isOverdue =>

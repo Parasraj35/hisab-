@@ -44,7 +44,8 @@ class TransactionItem {
     return null;
   }
 
-  factory TransactionItem.fromJson(Map<String, dynamic> json) => TransactionItem(
+  factory TransactionItem.fromJson(Map<String, dynamic> json) =>
+      TransactionItem(
         id: (json['_id'] ?? json['id'] ?? '').toString(),
         type: (json['type'] ?? 'expense').toString(),
         amount: (json['amount'] ?? 0).toDouble(),

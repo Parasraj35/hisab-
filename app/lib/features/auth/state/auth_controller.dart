@@ -4,7 +4,14 @@ import '../../../core/storage/token_storage.dart';
 import '../data/auth_models.dart';
 import '../data/auth_repository.dart';
 
-enum AuthStatus { unknown, unauthenticated, needsOtp, needsProfile, needsAccount, authenticated }
+enum AuthStatus {
+  unknown,
+  unauthenticated,
+  needsOtp,
+  needsProfile,
+  needsAccount,
+  authenticated
+}
 
 class AuthState {
   const AuthState({
@@ -80,9 +87,11 @@ class AuthController extends StateNotifier<AuthState> {
     }
   }
 
-  Future<bool> register({required String email, required String password, String? phone}) =>
+  Future<bool> register(
+          {required String email, required String password, String? phone}) =>
       _run(() async {
-        final result = await _repo.register(email: email, password: password, phone: phone);
+        final result = await _repo.register(
+            email: email, password: password, phone: phone);
         await _storage.saveTokens(
           access: result.tokens!.accessToken,
           refresh: result.tokens!.refreshToken,
@@ -94,13 +103,16 @@ class AuthController extends StateNotifier<AuthState> {
         );
       });
 
-  Future<bool> login({required String identifier, required String password}) => _run(() async {
-        final result = await _repo.login(identifier: identifier, password: password);
+  Future<bool> login({required String identifier, required String password}) =>
+      _run(() async {
+        final result =
+            await _repo.login(identifier: identifier, password: password);
         await _storage.saveTokens(
           access: result.tokens!.accessToken,
           refresh: result.tokens!.refreshToken,
         );
-        state = state.copyWith(status: _stageToStatus(result.user), user: result.user);
+        state = state.copyWith(
+            status: _stageToStatus(result.user), user: result.user);
       });
 
   Future<bool> loginWithGoogle({required String idToken}) => _run(() async {
@@ -109,7 +121,8 @@ class AuthController extends StateNotifier<AuthState> {
           access: result.tokens!.accessToken,
           refresh: result.tokens!.refreshToken,
         );
-        state = state.copyWith(status: _stageToStatus(result.user), user: result.user);
+        state = state.copyWith(
+            status: _stageToStatus(result.user), user: result.user);
       });
 
   Future<bool> verifyOtp(String code) => _run(() async {
@@ -136,7 +149,10 @@ class AuthController extends StateNotifier<AuthState> {
   }) =>
       _run(() async {
         final user = await _repo.profileSetup(
-            fullName: fullName, email: email, phone: phone, avatarUrl: avatarUrl);
+            fullName: fullName,
+            email: email,
+            phone: phone,
+            avatarUrl: avatarUrl);
         state = state.copyWith(status: _stageToStatus(user), user: user);
       });
 
@@ -148,7 +164,10 @@ class AuthController extends StateNotifier<AuthState> {
   }) =>
       _run(() async {
         await _repo.accountSetup(
-            name: name, currency: currency, initialBalance: initialBalance, type: type);
+            name: name,
+            currency: currency,
+            initialBalance: initialBalance,
+            type: type);
         state = state.copyWith(status: AuthStatus.authenticated);
       });
 

@@ -196,8 +196,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                         color: Theme.of(context).cardTheme.color,
                         borderRadius:
                             BorderRadius.circular(AppSpacing.cardRadius),
-                        boxShadow:
-                            Clay.shadows(context.cBackground, small: true),
+                        boxShadow: Clay.shadows(context, context.cBackground,
+                            small: true),
                       ),
                       child: InkWell(
                         onTap: () => context.push('/transactions/${item.id}'),

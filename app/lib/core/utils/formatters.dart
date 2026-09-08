@@ -7,7 +7,8 @@ class Fmt {
   static final _compact = NumberFormat('#,##0', 'en_US');
 
   /// "PKR 120,000.00"
-  static String currency(num value, {String code = 'PKR', bool decimals = true}) =>
+  static String currency(num value,
+          {String code = 'PKR', bool decimals = true}) =>
       '$code ${decimals ? _money.format(value) : _compact.format(value)}';
 
   /// "+50,000.00" / "-2,500.00"
@@ -35,7 +36,8 @@ class Fmt {
   }
 
   static String initials(String name) {
-    final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+    final parts =
+        name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
     if (parts.isEmpty) return '?';
     if (parts.length == 1) return parts.first[0].toUpperCase();
     return (parts.first[0] + parts.last[0]).toUpperCase();

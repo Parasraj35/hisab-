@@ -62,7 +62,8 @@ class TransactionTile extends StatelessWidget {
                       Text(item.title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.titleMedium!.copyWith(fontSize: 14)),
+                          style: theme.textTheme.titleMedium!
+                              .copyWith(fontSize: 14)),
                       const SizedBox(height: 2),
                       Text(item.subtitle,
                           maxLines: 1,
@@ -75,7 +76,9 @@ class TransactionTile extends StatelessWidget {
                 Text(
                   '${isIncome ? '+' : '-'}${Fmt.plain(item.amount)}',
                   style: TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w700, color: accentColor),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: accentColor),
                 ),
               ],
             ),

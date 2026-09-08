@@ -35,7 +35,8 @@ class SecurityScreen extends ConsumerWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.canPop() ? context.pop() : context.go('/settings'),
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go('/settings'),
         ),
         title: const Text('Security'),
       ),
@@ -63,16 +64,16 @@ class SecurityScreen extends ConsumerWidget {
                     value: status.appLock,
                     // Without a PIN there's nothing to unlock with, so the
                     // switch stays inert until one is set.
-                    onChanged: status.hasPin
-                        ? (v) => patch({'appLock': v})
-                        : null,
+                    onChanged:
+                        status.hasPin ? (v) => patch({'appLock': v}) : null,
                   ),
                 ),
                 SettingsTile(
                   title: status.hasPin ? 'Change PIN' : 'Set PIN',
                   icon: Icons.pin_outlined,
                   iconColor: const Color(0xFF3B82F6),
-                  onTap: () => _showPinSheet(context, ref, hasPin: status.hasPin),
+                  onTap: () =>
+                      _showPinSheet(context, ref, hasPin: status.hasPin),
                 ),
                 SettingsTile(
                   title: 'Biometric Unlock',
@@ -101,12 +102,12 @@ class SecurityScreen extends ConsumerWidget {
                   icon: Icons.timer_outlined,
                   iconColor: AppColors.warning,
                   showDivider: false,
-                  onTap: () => _showAutoLockSheet(context, patch, status.autoLockMinutes),
+                  onTap: () => _showAutoLockSheet(
+                      context, patch, status.autoLockMinutes),
                 ),
               ],
             ),
             const SizedBox(height: AppSpacing.xl),
-
             SettingsGroup(
               title: 'Account',
               children: [
@@ -141,7 +142,6 @@ class SecurityScreen extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: AppSpacing.xxl),
-
             OutlinedButton.icon(
               onPressed: () => _confirmLogout(context, ref),
               style: OutlinedButton.styleFrom(
@@ -172,7 +172,8 @@ class SecurityScreen extends ConsumerWidget {
       }
       return await auth.authenticate(
         localizedReason: 'Confirm it is you to enable biometric unlock',
-        options: const AuthenticationOptions(biometricOnly: true, stickyAuth: true),
+        options:
+            const AuthenticationOptions(biometricOnly: true, stickyAuth: true),
       );
     } catch (e) {
       if (context.mounted) showAppSnack(context, e.toString(), isError: true);
@@ -180,8 +181,8 @@ class SecurityScreen extends ConsumerWidget {
     }
   }
 
-  void _showAutoLockSheet(
-      BuildContext context, Future<void> Function(Map<String, dynamic>) patch, int current) {
+  void _showAutoLockSheet(BuildContext context,
+      Future<void> Function(Map<String, dynamic>) patch, int current) {
     const options = [0, 1, 5, 15, 30];
     showModalBottomSheet<void>(
       context: context,
@@ -194,9 +195,11 @@ class SecurityScreen extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox(height: AppSpacing.lg),
-            Text('Auto lock after', style: Theme.of(context).textTheme.titleMedium),
+            Text('Auto lock after',
+                style: Theme.of(context).textTheme.titleMedium),
             ...options.map((m) => ListTile(
-                  title: Text(m == 0 ? 'Immediately' : '$m minute${m == 1 ? '' : 's'}'),
+                  title: Text(
+                      m == 0 ? 'Immediately' : '$m minute${m == 1 ? '' : 's'}'),
                   trailing: m == current
                       ? const Icon(Icons.check_circle,
                           color: AppColors.accent, size: 20)
@@ -213,7 +216,8 @@ class SecurityScreen extends ConsumerWidget {
     );
   }
 
-  void _showPinSheet(BuildContext context, WidgetRef ref, {required bool hasPin}) {
+  void _showPinSheet(BuildContext context, WidgetRef ref,
+      {required bool hasPin}) {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -351,11 +355,11 @@ class _PinSheetState extends ConsumerState<_PinSheet> {
               controller: _confirm,
               obscureText: true,
               keyboardType: TextInputType.number,
-              validator: (v) =>
-                  v != _pin.text ? 'PINs do not match' : null,
+              validator: (v) => v != _pin.text ? 'PINs do not match' : null,
             ),
             const SizedBox(height: AppSpacing.xxl),
-            PrimaryButton(label: 'Save PIN', loading: _saving, onPressed: _save),
+            PrimaryButton(
+                label: 'Save PIN', loading: _saving, onPressed: _save),
           ],
         ),
       ),

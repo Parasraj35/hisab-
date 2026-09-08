@@ -78,7 +78,8 @@ class TransactionRepository {
   final ApiClient _api;
 
   Future<TransactionPage> list(TransactionQuery query) async {
-    final res = await _api.get(ApiEndpoints.transactions, query: query.toQuery());
+    final res =
+        await _api.get(ApiEndpoints.transactions, query: query.toQuery());
     final meta = Map<String, dynamic>.from(res['meta'] ?? {});
     return TransactionPage(
       items: (res['data'] as List)
@@ -118,7 +119,8 @@ class TransactionRepository {
         Map<String, dynamic>.from(res['data']['transaction']));
   }
 
-  Future<TransactionItem> update(String id, Map<String, dynamic> changes) async {
+  Future<TransactionItem> update(
+      String id, Map<String, dynamic> changes) async {
     final res = await _api.patch(ApiEndpoints.transaction(id), data: changes);
     return TransactionItem.fromJson(
         Map<String, dynamic>.from(res['data']['transaction']));

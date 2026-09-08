@@ -86,12 +86,10 @@ class HistoryState {
   bool get isEmpty => !loading && error == null && items.isEmpty;
 
   /// Running totals for the visible range, used by the summary chips.
-  double get incomeTotal => items
-      .where((i) => i.isIncome)
-      .fold(0.0, (sum, i) => sum + i.amount);
-  double get expenseTotal => items
-      .where((i) => i.isExpense)
-      .fold(0.0, (sum, i) => sum + i.amount);
+  double get incomeTotal =>
+      items.where((i) => i.isIncome).fold(0.0, (sum, i) => sum + i.amount);
+  double get expenseTotal =>
+      items.where((i) => i.isExpense).fold(0.0, (sum, i) => sum + i.amount);
 
   HistoryState copyWith({
     List<TransactionItem>? items,
@@ -118,8 +116,8 @@ class HistoryState {
 }
 
 final historyControllerProvider =
-    StateNotifierProvider<HistoryController, HistoryState>(
-        (ref) => HistoryController(ref.read(transactionRepositoryProvider))..load());
+    StateNotifierProvider<HistoryController, HistoryState>((ref) =>
+        HistoryController(ref.read(transactionRepositoryProvider))..load());
 
 class HistoryController extends StateNotifier<HistoryState> {
   HistoryController(this._repo) : super(const HistoryState());

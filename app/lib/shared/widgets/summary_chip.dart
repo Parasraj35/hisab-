@@ -38,7 +38,7 @@ class SummaryChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: soft,
         borderRadius: BorderRadius.circular(compact ? 12 : 16),
-        boxShadow: Clay.shadows(color, small: true),
+        boxShadow: Clay.shadows(context, color, small: true),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

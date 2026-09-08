@@ -38,7 +38,8 @@ class NotificationsScreen extends ConsumerWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.canPop() ? context.pop() : context.go('/dashboard'),
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go('/dashboard'),
         ),
         title: const Text('Notifications'),
         actions: [
@@ -47,7 +48,8 @@ class NotificationsScreen extends ConsumerWidget {
               onPressed: () async {
                 await repo.markAllRead();
                 await refresh();
-                if (context.mounted) showAppSnack(context, 'All marked as read');
+                if (context.mounted)
+                  showAppSnack(context, 'All marked as read');
               },
               child: const Text('Mark all read',
                   style: TextStyle(color: Colors.white, fontSize: 12)),
@@ -109,7 +111,9 @@ class NotificationsScreen extends ConsumerWidget {
                         child: Icon(icon, size: 19, color: color),
                       ),
                       title: Text(item.title,
-                          style: Theme.of(context).textTheme.titleMedium!
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium!
                               .copyWith(fontSize: 14)),
                       subtitle: Padding(
                         padding: const EdgeInsets.only(top: 2),

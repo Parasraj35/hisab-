@@ -282,7 +282,7 @@ class _AccountSlot extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).cardTheme.color,
           borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-          boxShadow: Clay.shadows(context.cBackground, small: true),
+          boxShadow: Clay.shadows(context, context.cBackground, small: true),
         ),
         child: Row(
           children: [
@@ -387,7 +387,8 @@ class _DateRow extends StatelessWidget {
             decoration: BoxDecoration(
               color: Theme.of(context).cardTheme.color,
               borderRadius: BorderRadius.circular(AppSpacing.fieldRadius),
-              boxShadow: Clay.shadows(context.cBackground, small: true),
+              boxShadow:
+                  Clay.shadows(context, context.cBackground, small: true),
             ),
             child: Row(
               children: [

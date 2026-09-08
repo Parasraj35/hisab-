@@ -23,7 +23,7 @@ class ClayFab extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: Clay.fill(color),
           shape: BoxShape.circle,
-          boxShadow: Clay.shadows(color),
+          boxShadow: Clay.shadows(context, color),
         ),
         child: Icon(icon, size: 28, color: Colors.white),
       ),

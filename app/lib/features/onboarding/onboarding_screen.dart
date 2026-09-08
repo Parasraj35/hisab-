@@ -68,11 +68,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             Align(
               alignment: Alignment.centerRight,
               child: Padding(
-                padding: const EdgeInsets.only(right: AppSpacing.md, top: AppSpacing.sm),
+                padding: const EdgeInsets.only(
+                    right: AppSpacing.md, top: AppSpacing.sm),
                 child: TextButton(
                   onPressed: _finish,
                   child: Text('Skip',
-                      style: TextStyle(color: context.cTextSecondary,
+                      style: TextStyle(
+                          color: context.cTextSecondary,
                           fontWeight: FontWeight.w500)),
                 ),
               ),
@@ -85,8 +87,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 itemBuilder: (context, i) {
                   final slide = _slides[i];
                   return Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.xxl),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

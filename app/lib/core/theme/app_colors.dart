@@ -5,11 +5,14 @@ class AppColors {
   AppColors._();
 
   // Brand greens — exact values supplied by the client
-  static const Color forest = Color(0xFF00563B); // buttons, active states, brand icons
+  static const Color forest =
+      Color(0xFF00563B); // buttons, active states, brand icons
   static const Color forestDeep = Color(0xFF00563B); // splash background
   static const Color primary = Color(0xFF00563B); // filled buttons
-  static const Color primaryPressed = Color(0xFF00432E); // 12% darker, for press state
-  static const Color header = Color(0xFF004325); // app bars + the dashboard balance card
+  static const Color primaryPressed =
+      Color(0xFF00432E); // 12% darker, for press state
+  static const Color header =
+      Color(0xFF004325); // app bars + the dashboard balance card
   static const Color accent = Color(0xFF008F68); // FAB, positive accents
 
   // Semantic
@@ -54,9 +57,15 @@ class AppColors {
   static const Color quickNeutralSoft = Color(0xFFEEF0EF);
 
   static const List<Color> categoryPalette = [
-    Color(0xFFF97316), Color(0xFF3B82F6), Color(0xFFEAB308),
-    Color(0xFFA855F7), Color(0xFFEF4444), Color(0xFF0EA5E9),
-    Color(0xFFEC4899), Color(0xFF14B8A6), Color(0xFF6B7280),
+    Color(0xFFF97316),
+    Color(0xFF3B82F6),
+    Color(0xFFEAB308),
+    Color(0xFFA855F7),
+    Color(0xFFEF4444),
+    Color(0xFF0EA5E9),
+    Color(0xFFEC4899),
+    Color(0xFF14B8A6),
+    Color(0xFF6B7280),
   ];
 }
 
@@ -68,7 +77,8 @@ class AppColors {
 extension AppPalette on BuildContext {
   bool get isDark => Theme.of(this).brightness == Brightness.dark;
 
-  Color get cBackground => isDark ? AppColors.darkBackground : AppColors.background;
+  Color get cBackground =>
+      isDark ? AppColors.darkBackground : AppColors.background;
   Color get cBorder => isDark ? AppColors.darkBorder : AppColors.border;
   Color get cDivider => isDark ? AppColors.darkBorder : AppColors.divider;
   Color get cSurface => isDark ? AppColors.darkSurface : AppColors.surface;
@@ -80,12 +90,14 @@ extension AppPalette on BuildContext {
       isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
   Color get cTextTertiary =>
       isDark ? AppColors.darkIconMuted : AppColors.textTertiary;
-  Color get cIconMuted => isDark ? AppColors.darkIconMuted : AppColors.textTertiary;
+  Color get cIconMuted =>
+      isDark ? AppColors.darkIconMuted : AppColors.textTertiary;
 
   Color get cPrimary => isDark ? AppColors.darkPrimary : AppColors.primary;
   Color get cHeader => isDark ? AppColors.darkHeader : AppColors.header;
   Color get cAccent => isDark ? AppColors.darkPrimary : AppColors.accent;
-  Color get cLightGreen => isDark ? AppColors.darkLightGreen : AppColors.incomeSoft;
+  Color get cLightGreen =>
+      isDark ? AppColors.darkLightGreen : AppColors.incomeSoft;
 
   Color get cIncome => isDark ? AppColors.darkIncome : AppColors.income;
   Color get cExpense => isDark ? AppColors.darkExpense : AppColors.expense;

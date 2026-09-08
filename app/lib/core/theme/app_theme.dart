@@ -50,7 +50,8 @@ class AppTheme {
   }) {
     final textTheme = AppTypography.textTheme(textPrimary, textSecondary);
 
-    OutlineInputBorder fieldBorder(Color c, [double w = 1]) => OutlineInputBorder(
+    OutlineInputBorder fieldBorder(Color c, [double w = 1]) =>
+        OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.fieldRadius),
           borderSide: BorderSide(color: c, width: w),
         );
@@ -89,7 +90,8 @@ class AppTheme {
         filled: true,
         fillColor: surface,
         isDense: true,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
         hintStyle: textTheme.bodyMedium!.copyWith(color: textSecondary),
         labelStyle: textTheme.bodySmall,
         enabledBorder: fieldBorder(border),
@@ -126,11 +128,14 @@ class AppTheme {
       ),
       dividerTheme: DividerThemeData(color: border, thickness: 1, space: 1),
       switchTheme: SwitchThemeData(
-        thumbColor: WidgetStateProperty.resolveWith(
-            (s) => s.contains(WidgetState.selected) ? Colors.white : Colors.white),
-        trackColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.selected)
-            ? accent
-            : (brightness == Brightness.dark ? border : const Color(0xFFD1D5DB))),
+        thumbColor: WidgetStateProperty.resolveWith((s) =>
+            s.contains(WidgetState.selected) ? Colors.white : Colors.white),
+        trackColor: WidgetStateProperty.resolveWith((s) =>
+            s.contains(WidgetState.selected)
+                ? accent
+                : (brightness == Brightness.dark
+                    ? border
+                    : const Color(0xFFD1D5DB))),
         trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
       ),
       // White on #4CAF8A is only 2.69:1. Dark green on the accent reads at

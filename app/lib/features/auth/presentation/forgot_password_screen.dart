@@ -13,7 +13,8 @@ class ForgotPasswordScreen extends ConsumerStatefulWidget {
   const ForgotPasswordScreen({super.key});
 
   @override
-  ConsumerState<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
+  ConsumerState<ForgotPasswordScreen> createState() =>
+      _ForgotPasswordScreenState();
 }
 
 class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
@@ -33,7 +34,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     try {
       await ref.read(authRepositoryProvider).forgotPassword(_email.text.trim());
       if (!mounted) return;
-      showAppSnack(context, 'If that account exists, a reset code has been sent');
+      showAppSnack(
+          context, 'If that account exists, a reset code has been sent');
       context.pop();
     } catch (e) {
       if (mounted) showAppSnack(context, e.toString(), isError: true);
@@ -76,7 +78,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                 ),
                 const SizedBox(height: AppSpacing.xxl),
                 PrimaryButton(
-                    label: 'Send Reset Code', loading: _loading, onPressed: _submit),
+                    label: 'Send Reset Code',
+                    loading: _loading,
+                    onPressed: _submit),
               ],
             ),
           ),

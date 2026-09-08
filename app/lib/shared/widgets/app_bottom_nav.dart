@@ -14,7 +14,11 @@ class AppBottomNav extends StatelessWidget {
 
   static const _destinations = [
     (icon: Icons.home_rounded, label: 'Home', route: '/dashboard'),
-    (icon: Icons.account_balance_wallet_outlined, label: 'Accounts', route: '/accounts'),
+    (
+      icon: Icons.account_balance_wallet_outlined,
+      label: 'Accounts',
+      route: '/accounts'
+    ),
     (icon: Icons.bar_chart_rounded, label: 'Reports', route: '/reports'),
     (icon: Icons.menu_rounded, label: 'More', route: '/settings'),
   ];

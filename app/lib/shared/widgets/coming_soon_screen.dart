@@ -18,7 +18,8 @@ class ComingSoonScreen extends StatelessWidget {
         title: Text(title),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.canPop() ? context.pop() : context.go('/dashboard'),
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go('/dashboard'),
         ),
       ),
       body: Center(
@@ -30,11 +31,13 @@ class ComingSoonScreen extends StatelessWidget {
               Container(
                 height: 96,
                 width: 96,
-                decoration:
-                    BoxDecoration(shape: BoxShape.circle, color: context.cLightGreen),
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle, color: context.cLightGreen),
                 child: Icon(Icons.construction_rounded,
                     size: 40,
-                    color: context.isDark ? AppColors.darkHeader : AppColors.forest),
+                    color: context.isDark
+                        ? AppColors.darkHeader
+                        : AppColors.forest),
               ),
               const SizedBox(height: AppSpacing.xl),
               Text(title, style: Theme.of(context).textTheme.titleLarge),

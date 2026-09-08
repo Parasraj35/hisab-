@@ -247,7 +247,7 @@ class _GoalCard extends StatelessWidget {
         color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
         boxShadow: Clay.shadows(
-            goal.isCompleted ? AppColors.accent : context.cBackground,
+            context, goal.isCompleted ? AppColors.accent : context.cBackground,
             small: true),
       ),
       child: Column(

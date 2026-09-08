@@ -31,11 +31,12 @@ class EmptyState extends StatelessWidget {
             Container(
               height: 132,
               width: 132,
-              decoration:
-                  BoxDecoration(shape: BoxShape.circle, color: context.cLightGreen),
+              decoration: BoxDecoration(
+                  shape: BoxShape.circle, color: context.cLightGreen),
               child: Icon(icon,
                   size: 56,
-                  color: context.isDark ? AppColors.darkHeader : AppColors.forest),
+                  color:
+                      context.isDark ? AppColors.darkHeader : AppColors.forest),
             ),
             const SizedBox(height: AppSpacing.xxl),
             Text(title,
@@ -47,7 +48,8 @@ class EmptyState extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyMedium),
             if (actionLabel != null) ...[
               const SizedBox(height: AppSpacing.xxl),
-              PrimaryButton(label: actionLabel!, onPressed: onAction, expanded: false),
+              PrimaryButton(
+                  label: actionLabel!, onPressed: onAction, expanded: false),
             ],
           ],
         ),

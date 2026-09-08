@@ -43,13 +43,15 @@ class SavingsRepository {
     return SavingsGoal.fromJson(Map<String, dynamic>.from(res['data']['goal']));
   }
 
-  Future<SavingsGoal> contribute(String id, double amount, {String note = ''}) async {
+  Future<SavingsGoal> contribute(String id, double amount,
+      {String note = ''}) async {
     final res = await _api.post(ApiEndpoints.savingsContribute(id),
         data: {'amount': amount, 'note': note});
     return SavingsGoal.fromJson(Map<String, dynamic>.from(res['data']['goal']));
   }
 
-  Future<SavingsGoal> withdraw(String id, double amount, {String note = ''}) async {
+  Future<SavingsGoal> withdraw(String id, double amount,
+      {String note = ''}) async {
     final res = await _api.post(ApiEndpoints.savingsWithdraw(id),
         data: {'amount': amount, 'note': note});
     return SavingsGoal.fromJson(Map<String, dynamic>.from(res['data']['goal']));

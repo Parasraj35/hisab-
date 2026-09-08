@@ -1,8 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-/// Loads a Google AdMob App Open ad on launch and shows it once, the first
-/// time the app is ready to display it after the splash screen.
+/// Loads a Google AdMob App Open ad and shows it once it's ready — used
+/// once per app launch, triggered a couple of seconds after the Dashboard
+/// is already on screen (see DashboardScreen). AdMob's native init (a
+/// WebView + Chromium load for ad rendering) is heavy enough to stall the
+/// main thread for several seconds; triggering it early — even from the
+/// splash screen — measurably blocked the splash-to-dashboard transition,
+/// so it now runs after the user is already looking at their data instead.
 class AppOpenAdManager {
   AppOpenAdManager._();
   static final instance = AppOpenAdManager._();
@@ -14,19 +19,23 @@ class AppOpenAdManager {
 
   AppOpenAd? _ad;
   bool _isShowingAd = false;
+  bool _shownThisLaunch = false;
   DateTime? _loadTime;
 
-  String get _adUnitId =>
-      defaultTargetPlatform == TargetPlatform.iOS ? _iosAdUnitId : _androidAdUnitId;
+  String get _adUnitId => defaultTargetPlatform == TargetPlatform.iOS
+      ? _iosAdUnitId
+      : _androidAdUnitId;
 
   bool get _isAdAvailable =>
       _ad != null &&
       _loadTime != null &&
       DateTime.now().difference(_loadTime!) < _adMaxAge;
 
-  /// Starts loading an ad in the background. Call once, early (e.g. from
-  /// `main()`), so the ad is ready by the time the splash screen finishes.
-  void loadAd() {
+  /// Loads an ad and shows it automatically once it finishes — a no-op if
+  /// one was already shown this app launch.
+  void loadAndShowWhenReady() {
+    if (_shownThisLaunch) return;
+    MobileAds.instance.initialize();
     AppOpenAd.load(
       adUnitId: _adUnitId,
       request: const AdRequest(),
@@ -35,6 +44,7 @@ class AppOpenAdManager {
           _ad = ad;
           _loadTime = DateTime.now();
           debugPrint('[ads] App Open ad loaded');
+          _showIfAvailable();
         },
         onAdFailedToLoad: (error) {
           _ad = null;
@@ -44,17 +54,14 @@ class AppOpenAdManager {
     );
   }
 
-  /// Shows the ad if one finished loading in time; otherwise does nothing —
-  /// launch is never blocked waiting on an ad.
-  void showAdIfAvailable() {
-    if (_isShowingAd) return;
-    if (!_isAdAvailable) {
-      debugPrint('[ads] No App Open ad available to show yet');
-      return;
-    }
+  void _showIfAvailable() {
+    if (_isShowingAd || _shownThisLaunch || !_isAdAvailable) return;
 
     _ad!.fullScreenContentCallback = FullScreenContentCallback(
-      onAdShowedFullScreenContent: (_) => _isShowingAd = true,
+      onAdShowedFullScreenContent: (_) {
+        _isShowingAd = true;
+        _shownThisLaunch = true;
+      },
       onAdFailedToShowFullScreenContent: (ad, _) {
         _isShowingAd = false;
         ad.dispose();

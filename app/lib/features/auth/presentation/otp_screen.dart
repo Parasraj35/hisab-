@@ -86,8 +86,11 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     final devCode = await ref.read(authControllerProvider.notifier).resendOtp();
     if (!mounted) return;
     _startTimer();
-    showAppSnack(context,
-        devCode != null ? 'Code sent (dev: $devCode)' : 'Verification code sent');
+    showAppSnack(
+        context,
+        devCode != null
+            ? 'Code sent (dev: $devCode)'
+            : 'Verification code sent');
   }
 
   @override
@@ -122,10 +125,8 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
               Text('Enter 6 digit code sent to\n$destination',
                   style: theme.textTheme.bodyMedium),
               const SizedBox(height: AppSpacing.xxxl),
-
               OtpBoxes(code: _code, hasError: _hasError),
               const SizedBox(height: AppSpacing.xl),
-
               Center(
                 child: _secondsLeft > 0
                     ? Text('Resend code in ${Fmt.countdown(_secondsLeft)}',
@@ -136,31 +137,32 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                             style: TextStyle(fontWeight: FontWeight.w600)),
                       ),
               ),
-
               if (auth.devOtpCode != null) ...[
                 const SizedBox(height: AppSpacing.sm),
                 Center(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
                       color: AppColors.incomeSoft,
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text('Dev code: ${auth.devOtpCode}',
                         style: const TextStyle(
-                            fontSize: 11, color: AppColors.forest,
+                            fontSize: 11,
+                            color: AppColors.forest,
                             fontWeight: FontWeight.w600)),
                   ),
                 ),
               ],
-
               const Spacer(),
               if (auth.loading)
                 const Padding(
                   padding: EdgeInsets.only(bottom: AppSpacing.lg),
                   child: Center(
                     child: SizedBox(
-                      height: 22, width: 22,
+                      height: 22,
+                      width: 22,
                       child: CircularProgressIndicator(strokeWidth: 2.2),
                     ),
                   ),
@@ -171,7 +173,6 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                   onPressed: _code.length == 6 ? _verify : null,
                 ),
               const SizedBox(height: AppSpacing.lg),
-
               NumericKeypad(onDigit: _onDigit, onBackspace: _onBackspace),
               const SizedBox(height: AppSpacing.lg),
             ],

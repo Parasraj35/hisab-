@@ -127,7 +127,8 @@ class _Body extends ConsumerWidget {
             decoration: BoxDecoration(
               color: Theme.of(context).cardTheme.color,
               borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-              boxShadow: Clay.shadows(context.cBackground, small: true),
+              boxShadow:
+                  Clay.shadows(context, context.cBackground, small: true),
             ),
             child: Column(
               children: [
@@ -205,7 +206,8 @@ class _Body extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardTheme.color,
                   borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-                  boxShadow: Clay.shadows(context.cBackground, small: true),
+                  boxShadow:
+                      Clay.shadows(context, context.cBackground, small: true),
                 ),
                 child: Column(
                   children: page.items.asMap().entries.map((entry) {

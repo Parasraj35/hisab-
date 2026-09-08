@@ -22,7 +22,8 @@ class SavingsGoal {
   double get progress =>
       targetAmount == 0 ? 0 : (savedAmount / targetAmount).clamp(0.0, 1.0);
   int get progressPercent => (progress * 100).round();
-  double get remaining => (targetAmount - savedAmount).clamp(0, double.infinity);
+  double get remaining =>
+      (targetAmount - savedAmount).clamp(0, double.infinity);
 
   factory SavingsGoal.fromJson(Map<String, dynamic> json) => SavingsGoal(
         id: (json['_id'] ?? json['id'] ?? '').toString(),

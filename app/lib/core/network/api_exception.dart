@@ -30,7 +30,8 @@ class ApiException implements Exception {
         fieldErrors: errors,
       );
     }
-    return ApiException('Something went wrong', statusCode: e.response?.statusCode);
+    return ApiException('Something went wrong',
+        statusCode: e.response?.statusCode);
   }
 
   @override

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/ads/app_open_ad_manager.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/clay.dart';
@@ -47,6 +48,16 @@ class DashboardScreen extends ConsumerStatefulWidget {
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   bool _balanceHidden = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // A couple of seconds after the dashboard is already on screen, not on
+    // the splash path — AdMob's native init is heavy enough to noticeably
+    // stall the splash-to-dashboard transition if triggered any earlier.
+    Future.delayed(const Duration(seconds: 2),
+        () => AppOpenAdManager.instance.loadAndShowWhenReady());
+  }
 
   Future<void> _refresh() async {
     ref.invalidate(dashboardOverviewProvider);
@@ -612,7 +623,7 @@ class _QuickAction extends StatelessWidget {
               decoration: BoxDecoration(
                 color: soft,
                 shape: BoxShape.circle,
-                boxShadow: Clay.shadows(color, small: true),
+                boxShadow: Clay.shadows(context, color, small: true),
               ),
               child: Icon(icon, size: 23, color: color),
             ),
@@ -658,7 +669,7 @@ class _BalanceHeader extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: Clay.fill(context.cHeader),
         borderRadius: BorderRadius.circular(26),
-        boxShadow: Clay.shadows(context.cHeader),
+        boxShadow: Clay.shadows(context, context.cHeader),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,

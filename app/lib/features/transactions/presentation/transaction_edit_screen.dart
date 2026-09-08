@@ -234,7 +234,8 @@ class _EditFormState extends ConsumerState<_EditForm> {
                   decoration: BoxDecoration(
                     color: Theme.of(context).cardTheme.color,
                     borderRadius: BorderRadius.circular(AppSpacing.fieldRadius),
-                    boxShadow: Clay.shadows(context.cBackground, small: true),
+                    boxShadow:
+                        Clay.shadows(context, context.cBackground, small: true),
                   ),
                   child: Row(
                     children: [

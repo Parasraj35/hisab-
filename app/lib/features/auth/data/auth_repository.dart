@@ -23,8 +23,11 @@ class AuthRepository {
     required String password,
     String? phone,
   }) async {
-    final res = await _api.post(ApiEndpoints.register,
-        data: {'email': email, 'password': password, if (phone != null) 'phone': phone});
+    final res = await _api.post(ApiEndpoints.register, data: {
+      'email': email,
+      'password': password,
+      if (phone != null) 'phone': phone
+    });
     final data = res['data'] as Map<String, dynamic>;
     return AuthResult(
       user: UserModel.fromJson(Map<String, dynamic>.from(data['user'])),
@@ -33,9 +36,10 @@ class AuthRepository {
     );
   }
 
-  Future<AuthResult> login({required String identifier, required String password}) async {
-    final res = await _api
-        .post(ApiEndpoints.login, data: {'identifier': identifier, 'password': password});
+  Future<AuthResult> login(
+      {required String identifier, required String password}) async {
+    final res = await _api.post(ApiEndpoints.login,
+        data: {'identifier': identifier, 'password': password});
     final data = res['data'] as Map<String, dynamic>;
     return AuthResult(
       user: UserModel.fromJson(Map<String, dynamic>.from(data['user'])),
@@ -44,7 +48,8 @@ class AuthRepository {
   }
 
   Future<AuthResult> googleAuth({required String idToken}) async {
-    final res = await _api.post(ApiEndpoints.googleAuth, data: {'idToken': idToken});
+    final res =
+        await _api.post(ApiEndpoints.googleAuth, data: {'idToken': idToken});
     final data = res['data'] as Map<String, dynamic>;
     return AuthResult(
       user: UserModel.fromJson(Map<String, dynamic>.from(data['user'])),
@@ -94,7 +99,8 @@ class AuthRepository {
       'initialBalance': initialBalance,
       'type': type,
     });
-    return AccountModel.fromJson(Map<String, dynamic>.from(res['data']['account']));
+    return AccountModel.fromJson(
+        Map<String, dynamic>.from(res['data']['account']));
   }
 
   Future<void> forgotPassword(String email) =>

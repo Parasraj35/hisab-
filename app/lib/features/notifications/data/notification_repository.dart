@@ -19,15 +19,16 @@ class AppNotification {
   final bool isRead;
   final DateTime createdAt;
 
-  factory AppNotification.fromJson(Map<String, dynamic> json) => AppNotification(
+  factory AppNotification.fromJson(Map<String, dynamic> json) =>
+      AppNotification(
         id: (json['_id'] ?? json['id'] ?? '').toString(),
         type: (json['type'] ?? 'system').toString(),
         title: (json['title'] ?? '').toString(),
         body: (json['body'] ?? '').toString(),
         isRead: json['isRead'] == true,
-        createdAt:
-            DateTime.tryParse((json['createdAt'] ?? '').toString())?.toLocal() ??
-                DateTime.now(),
+        createdAt: DateTime.tryParse((json['createdAt'] ?? '').toString())
+                ?.toLocal() ??
+            DateTime.now(),
       );
 }
 
@@ -39,13 +40,15 @@ class NotificationRepository {
   final ApiClient _api;
 
   Future<List<AppNotification>> list() async {
-    final res = await _api.get(ApiEndpoints.notifications, query: {'limit': 50});
+    final res =
+        await _api.get(ApiEndpoints.notifications, query: {'limit': 50});
     return (res['data'] as List)
         .map((e) => AppNotification.fromJson(Map<String, dynamic>.from(e)))
         .toList();
   }
 
-  Future<void> markRead(String id) => _api.patch(ApiEndpoints.notificationRead(id));
+  Future<void> markRead(String id) =>
+      _api.patch(ApiEndpoints.notificationRead(id));
   Future<void> markAllRead() => _api.patch(ApiEndpoints.notificationsReadAll);
   Future<void> remove(String id) => _api.delete(ApiEndpoints.notification(id));
   Future<void> clearAll() => _api.delete(ApiEndpoints.notifications);

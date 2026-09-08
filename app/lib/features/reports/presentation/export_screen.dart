@@ -228,7 +228,7 @@ class _FileCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).cardTheme.color,
           borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-          boxShadow: Clay.shadows(AppColors.accent, small: true),
+          boxShadow: Clay.shadows(context, AppColors.accent, small: true),
         ),
         child: Row(
           children: [

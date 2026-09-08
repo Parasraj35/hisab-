@@ -118,9 +118,9 @@ class _AccountSetupScreenState extends ConsumerState<AccountSetupScreen> {
               children: [
                 Text('Account Setup', style: theme.textTheme.headlineMedium),
                 const SizedBox(height: AppSpacing.sm),
-                Text('Add your default cash account', style: theme.textTheme.bodyMedium),
+                Text('Add your default cash account',
+                    style: theme.textTheme.bodyMedium),
                 const SizedBox(height: AppSpacing.xxl),
-
                 AppTextField(
                   label: 'Account Name',
                   controller: _name,
@@ -129,7 +129,6 @@ class _AccountSetupScreenState extends ConsumerState<AccountSetupScreen> {
                   validator: (v) => Validators.required(v, 'Account name'),
                 ),
                 const SizedBox(height: AppSpacing.xl),
-
                 AppDropdown<String>(
                   label: 'Account Type',
                   value: _type,
@@ -155,23 +154,24 @@ class _AccountSetupScreenState extends ConsumerState<AccountSetupScreen> {
                   onChanged: (v) => setState(() => _type = v ?? 'cash'),
                 ),
                 const SizedBox(height: AppSpacing.xl),
-
                 AppDropdown<_Currency>(
                   label: 'Currency',
                   value: _currency,
                   items: _currencies,
                   itemLabel: (c) => c.label,
-                  onChanged: (v) => setState(() => _currency = v ?? _currencies.first),
+                  onChanged: (v) =>
+                      setState(() => _currency = v ?? _currencies.first),
                 ),
                 const SizedBox(height: AppSpacing.xl),
-
                 AppTextField(
                   label: 'Initial Balance',
                   controller: _balance,
                   hint: '0.00',
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
                   validator: (v) {
-                    if (v == null || v.trim().isEmpty) return 'Enter an initial balance';
+                    if (v == null || v.trim().isEmpty)
+                      return 'Enter an initial balance';
                     final parsed = double.tryParse(v.replaceAll(',', ''));
                     if (parsed == null) return 'Enter a valid amount';
                     if (parsed < 0) return 'Balance cannot be negative';
@@ -180,14 +180,15 @@ class _AccountSetupScreenState extends ConsumerState<AccountSetupScreen> {
                   onChanged: (_) => setState(() {}),
                 ),
                 const SizedBox(height: AppSpacing.md),
-
                 Row(
                   children: _quickAmounts.map((amount) {
                     final selected = _parsedBalance == amount;
                     return Padding(
                       padding: const EdgeInsets.only(right: AppSpacing.sm),
                       child: ChoiceChip(
-                        label: Text(Fmt.currency(amount, code: '', decimals: false).trim()),
+                        label: Text(
+                            Fmt.currency(amount, code: '', decimals: false)
+                                .trim()),
                         selected: selected,
                         onSelected: (_) => setState(() {
                           _balance.text = amount.toStringAsFixed(0);
@@ -196,12 +197,15 @@ class _AccountSetupScreenState extends ConsumerState<AccountSetupScreen> {
                         labelStyle: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: selected ? AppColors.forest : context.cTextSecondary,
+                          color: selected
+                              ? AppColors.forest
+                              : context.cTextSecondary,
                         ),
                         backgroundColor: context.cSurfaceAlt,
                         selectedColor: AppColors.incomeSoft,
                         side: BorderSide(
-                            color: selected ? AppColors.accent : context.cBorder),
+                            color:
+                                selected ? AppColors.accent : context.cBorder),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8)),
                       ),
@@ -209,20 +213,19 @@ class _AccountSetupScreenState extends ConsumerState<AccountSetupScreen> {
                   }).toList(),
                 ),
                 const SizedBox(height: AppSpacing.xxl),
-
                 PrimaryButton(
                   label: 'Save Account',
                   loading: auth.loading,
                   onPressed: _saveAndFinish,
                 ),
                 const SizedBox(height: AppSpacing.md),
-
                 Center(
                   child: TextButton.icon(
                     onPressed: _addingAnother ? null : _saveAndAddAnother,
                     icon: _addingAnother
                         ? const SizedBox(
-                            height: 14, width: 14,
+                            height: 14,
+                            width: 14,
                             child: CircularProgressIndicator(strokeWidth: 2))
                         : const Icon(Icons.add, size: 18),
                     label: const Text('Add Another Account',

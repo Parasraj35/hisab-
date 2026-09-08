@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 
-void showAppSnack(BuildContext context, String message, {bool isError = false}) {
+void showAppSnack(BuildContext context, String message,
+    {bool isError = false}) {
   ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
     ..showSnackBar(SnackBar(

@@ -38,9 +38,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     try {
       final idToken = await ref.read(googleAuthServiceProvider).signIn();
       if (!mounted) return;
-      final ok = await ref.read(authControllerProvider.notifier).loginWithGoogle(idToken: idToken);
+      final ok = await ref
+          .read(authControllerProvider.notifier)
+          .loginWithGoogle(idToken: idToken);
       if (!ok && mounted) {
-        showAppSnack(context, ref.read(authControllerProvider).error ?? 'Google sign-in failed',
+        showAppSnack(context,
+            ref.read(authControllerProvider).error ?? 'Google sign-in failed',
             isError: true);
       }
     } on GoogleAuthNotAvailable catch (e) {
@@ -61,7 +64,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     if (!mounted) return;
     if (!ok) {
-      showAppSnack(context, ref.read(authControllerProvider).error ?? 'Login failed',
+      showAppSnack(
+          context, ref.read(authControllerProvider).error ?? 'Login failed',
           isError: true);
     }
   }
@@ -87,7 +91,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 Text('Login to continue to your account',
                     style: theme.textTheme.bodyMedium),
                 const SizedBox(height: AppSpacing.xxxl),
-
                 AppTextField(
                   label: 'Email or Phone',
                   controller: _identifier,
@@ -96,7 +99,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   validator: Validators.emailOrPhone,
                 ),
                 const SizedBox(height: AppSpacing.xl),
-
                 AppTextField(
                   label: 'Password',
                   controller: _password,
@@ -114,47 +116,46 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     onPressed: () => setState(() => _obscure = !_obscure),
                   ),
                 ),
-
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () => context.push('/forgot-password'),
                     child: const Text('Forgot Password?',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+                        style: TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.w500)),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.md),
-
                 PrimaryButton(
                   label: 'Login',
                   loading: auth.loading,
                   onPressed: _submit,
                 ),
                 const SizedBox(height: AppSpacing.xxl),
-
                 Row(
                   children: [
                     Expanded(child: Divider(color: context.cBorder)),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                      child: Text('or continue with', style: theme.textTheme.bodySmall),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                      child: Text('or continue with',
+                          style: theme.textTheme.bodySmall),
                     ),
                     Expanded(child: Divider(color: context.cBorder)),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.xl),
-
                 GoogleSignInButton(
                   onPressed: _continueWithGoogle,
                   loading: _googleLoading,
                 ),
                 const SizedBox(height: AppSpacing.xxxl),
-
                 Center(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("Don't have an account?", style: theme.textTheme.bodyMedium),
+                      Text("Don't have an account?",
+                          style: theme.textTheme.bodyMedium),
                       TextButton(
                         onPressed: () => context.push('/signup'),
                         child: const Text('Sign Up',

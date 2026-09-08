@@ -41,7 +41,8 @@ extension ReportPeriodX on ReportPeriod {
 }
 
 final reportRepositoryProvider = Provider<ReportRepository>((ref) =>
-    ReportRepository(ref.read(apiClientProvider), ref.read(tokenStorageProvider)));
+    ReportRepository(
+        ref.read(apiClientProvider), ref.read(tokenStorageProvider)));
 
 class ReportRepository {
   ReportRepository(this._api, this._storage);
@@ -58,7 +59,8 @@ class ReportRepository {
   }
 
   Future<List<TrendPoint>> trend({int months = 6}) async {
-    final res = await _api.get(ApiEndpoints.reportTrend, query: {'months': months});
+    final res =
+        await _api.get(ApiEndpoints.reportTrend, query: {'months': months});
     return (res['data']['series'] as List)
         .map((e) => TrendPoint.fromJson(Map<String, dynamic>.from(e)))
         .toList();
@@ -102,17 +104,28 @@ class ReportRepository {
   }
 
   static String _monthName(int month) => const [
-        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
       ][month - 1];
 }
 
-final reportPeriodProvider = StateProvider<ReportPeriod>((ref) => ReportPeriod.thisMonth);
+final reportPeriodProvider =
+    StateProvider<ReportPeriod>((ref) => ReportPeriod.thisMonth);
 
 final reportOverviewProvider = FutureProvider<ReportOverview>((ref) {
   final period = ref.watch(reportPeriodProvider);
   return ref.read(reportRepositoryProvider).overview(period);
 });
 
-final reportTrendProvider =
-    FutureProvider<List<TrendPoint>>((ref) => ref.read(reportRepositoryProvider).trend());
+final reportTrendProvider = FutureProvider<List<TrendPoint>>(
+    (ref) => ref.read(reportRepositoryProvider).trend());

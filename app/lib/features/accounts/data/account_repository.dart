@@ -3,11 +3,14 @@ import '../../../core/network/api_client.dart';
 import '../../../core/network/api_endpoints.dart';
 import 'account_model.dart';
 
-final accountRepositoryProvider =
-    Provider<AccountRepository>((ref) => AccountRepository(ref.read(apiClientProvider)));
+final accountRepositoryProvider = Provider<AccountRepository>(
+    (ref) => AccountRepository(ref.read(apiClientProvider)));
 
 class AccountsPayload {
-  const AccountsPayload({required this.accounts, required this.totalBalance, required this.currency});
+  const AccountsPayload(
+      {required this.accounts,
+      required this.totalBalance,
+      required this.currency});
   final List<Account> accounts;
   final double totalBalance;
   final String currency;
@@ -56,5 +59,6 @@ class AccountRepository {
     return res['data']?['archived'] == true;
   }
 
-  Future<void> setDefault(String id) => _api.post(ApiEndpoints.accountDefault(id));
+  Future<void> setDefault(String id) =>
+      _api.post(ApiEndpoints.accountDefault(id));
 }

@@ -83,7 +83,6 @@ class SettingsScreen extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.xl),
-
           SettingsGroup(
             title: 'Management',
             children: [
@@ -115,7 +114,6 @@ class SettingsScreen extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.xl),
-
           SettingsGroup(
             title: 'Data & Privacy',
             children: [
@@ -147,7 +145,6 @@ class SettingsScreen extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.xl),
-
           SettingsGroup(
             title: 'Account',
             children: [

@@ -3,7 +3,8 @@ import '../../core/theme/app_colors.dart';
 
 /// Six read-only boxes driven by an external code string (screen 4).
 class OtpBoxes extends StatelessWidget {
-  const OtpBoxes({super.key, required this.code, this.length = 6, this.hasError = false});
+  const OtpBoxes(
+      {super.key, required this.code, this.length = 6, this.hasError = false});
 
   final String code;
   final int length;
@@ -36,7 +37,9 @@ class OtpBoxes extends StatelessWidget {
           child: Text(
             filled ? code[i] : '',
             style: TextStyle(
-                fontSize: 20, fontWeight: FontWeight.w700, color: context.cTextPrimary),
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: context.cTextPrimary),
           ),
         );
       }),
@@ -46,7 +49,8 @@ class OtpBoxes extends StatelessWidget {
 
 /// Custom numeric keypad matching the mockup (keeps the OS keyboard off-screen).
 class NumericKeypad extends StatelessWidget {
-  const NumericKeypad({super.key, required this.onDigit, required this.onBackspace});
+  const NumericKeypad(
+      {super.key, required this.onDigit, required this.onBackspace});
 
   final ValueChanged<String> onDigit;
   final VoidCallback onBackspace;
@@ -79,7 +83,9 @@ class NumericKeypad extends StatelessWidget {
     Widget digit(String d) => key(
           Text(d,
               style: TextStyle(
-                  fontSize: 22, fontWeight: FontWeight.w600, color: context.cTextPrimary)),
+                  fontSize: 22,
+                  fontWeight: FontWeight.w600,
+                  color: context.cTextPrimary)),
           () => onDigit(d),
         );
 
@@ -91,8 +97,10 @@ class NumericKeypad extends StatelessWidget {
         Row(children: [
           const Expanded(child: SizedBox(height: 54)),
           digit('0'),
-          key(Icon(Icons.backspace_outlined, size: 20,
-              color: context.cTextSecondary), onBackspace),
+          key(
+              Icon(Icons.backspace_outlined,
+                  size: 20, color: context.cTextSecondary),
+              onBackspace),
         ]),
       ],
     );

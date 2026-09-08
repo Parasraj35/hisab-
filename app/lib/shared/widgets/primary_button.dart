@@ -44,7 +44,8 @@ class PrimaryButton extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppSpacing.buttonRadius),
         boxShadow: enabled
-            ? Clay.shadows(Theme.of(context).colorScheme.primary, small: true)
+            ? Clay.shadows(context, Theme.of(context).colorScheme.primary,
+                small: true)
             : null,
       ),
       child: ElevatedButton(

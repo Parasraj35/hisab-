@@ -255,7 +255,7 @@ class _TotalCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-        boxShadow: Clay.shadows(context.cBackground, small: true),
+        boxShadow: Clay.shadows(context, context.cBackground, small: true),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -308,7 +308,7 @@ class _DebtCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-        boxShadow: Clay.shadows(context.cBackground, small: true),
+        boxShadow: Clay.shadows(context, context.cBackground, small: true),
       ),
       child: Column(
         children: [
@@ -556,7 +556,8 @@ class _AddDebtSheetState extends ConsumerState<_AddDebtSheet> {
                     decoration: BoxDecoration(
                       borderRadius:
                           BorderRadius.circular(AppSpacing.fieldRadius),
-                      boxShadow: Clay.shadows(context.cBackground, small: true),
+                      boxShadow: Clay.shadows(context, context.cBackground,
+                          small: true),
                     ),
                     child: Row(
                       children: [

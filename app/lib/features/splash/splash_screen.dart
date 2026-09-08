@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/ads/app_open_ad_manager.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 import '../../shared/widgets/brand_mark.dart';
@@ -24,18 +23,19 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
   late final Animation<double> _fade =
       CurvedAnimation(parent: _controller, curve: Curves.easeOut);
-  late final Animation<double> _scale =
-      Tween<double>(begin: 0.82, end: 1).animate(
-          CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
+  late final Animation<double> _scale = Tween<double>(begin: 0.82, end: 1)
+      .animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
 
   @override
   void initState() {
     super.initState();
     // Minimum 1.6s brand moment, then resolve where the user belongs.
+    // (The App Open ad is triggered later, from DashboardScreen — see
+    // AppOpenAdManager for why it's kept off the splash-to-dashboard path.)
     Future.wait([
       ref.read(authControllerProvider.notifier).restoreSession(),
       Future.delayed(const Duration(milliseconds: 1600)),
-    ]).then((_) => AppOpenAdManager.instance.showAdIfAvailable());
+    ]);
   }
 
   @override
@@ -59,7 +59,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ScaleTransition(scale: _scale, child: const BrandMark(size: 104)),
+                ScaleTransition(
+                    scale: _scale, child: const BrandMark(size: 104)),
                 const SizedBox(height: 28),
                 const Text('HISAB', style: AppTypography.brand),
                 const SizedBox(height: 10),
@@ -83,7 +84,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                 ),
                 const SizedBox(height: 12),
                 Text('Loading...',
-                    style: TextStyle(color: Colors.white.withOpacity(0.55), fontSize: 12)),
+                    style: TextStyle(
+                        color: Colors.white.withOpacity(0.55), fontSize: 12)),
               ],
             ),
           ),

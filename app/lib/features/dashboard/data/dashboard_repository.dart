@@ -42,7 +42,8 @@ class DashboardOverview {
   final List<TransactionItem> recentTransactions;
   final int unreadNotifications;
 
-  factory DashboardOverview.fromJson(Map<String, dynamic> json) => DashboardOverview(
+  factory DashboardOverview.fromJson(Map<String, dynamic> json) =>
+      DashboardOverview(
         currency: (json['currency'] ?? 'PKR').toString(),
         totalBalance: (json['totalBalance'] ?? 0).toDouble(),
         accounts: (json['accounts'] as List? ?? [])

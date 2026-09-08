@@ -31,8 +31,9 @@ class GoogleSignInButton extends StatelessWidget {
       height: AppSpacing.buttonHeight,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppSpacing.buttonRadius),
-        boxShadow:
-            loading ? null : Clay.shadows(context.cBackground, small: true),
+        boxShadow: loading
+            ? null
+            : Clay.shadows(context, context.cBackground, small: true),
       ),
       child: OutlinedButton(
         onPressed: loading ? null : onPressed,
