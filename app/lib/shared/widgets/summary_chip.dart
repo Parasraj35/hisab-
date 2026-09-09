@@ -30,7 +30,7 @@ class SummaryChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = isIncome ? context.cIncome : context.cExpense;
     final soft = context.isDark
-        ? color.withOpacity(0.14)
+        ? color.withValues(alpha: 0.14)
         : (isIncome ? AppColors.incomeSoft : AppColors.expenseSoft);
 
     return Container(

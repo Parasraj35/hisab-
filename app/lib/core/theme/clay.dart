@@ -28,12 +28,12 @@ class Clay {
     final blur = small ? 9.0 : 16.0;
     return [
       BoxShadow(
-        color: dark.withOpacity(isDark ? 0.6 : 0.4),
+        color: dark.withValues(alpha: isDark ? 0.6 : 0.4),
         offset: Offset(offset, offset),
         blurRadius: blur,
       ),
       BoxShadow(
-        color: light.withOpacity(isDark ? 0.05 : 0.35),
+        color: light.withValues(alpha: isDark ? 0.05 : 0.35),
         offset: Offset(-offset * 0.7, -offset * 0.7),
         blurRadius: blur * (isDark ? 0.5 : 0.85),
       ),

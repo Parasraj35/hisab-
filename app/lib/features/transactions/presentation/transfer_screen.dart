@@ -171,10 +171,10 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                       Container(
                         padding: const EdgeInsets.all(AppSpacing.md),
                         decoration: BoxDecoration(
-                          color: AppColors.warning.withOpacity(0.10),
+                          color: AppColors.warning.withValues(alpha: 0.10),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                              color: AppColors.warning.withOpacity(0.4)),
+                              color: AppColors.warning.withValues(alpha: 0.4)),
                         ),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -255,7 +255,7 @@ class _AccountSlot extends StatelessWidget {
                       ...options.map((a) => ListTile(
                             leading: CircleAvatar(
                               backgroundColor:
-                                  AppColors.forest.withOpacity(0.10),
+                                  AppColors.forest.withValues(alpha: 0.10),
                               child: Icon(iconForAccountType(a.type),
                                   size: 19, color: AppColors.forest),
                             ),
@@ -290,7 +290,7 @@ class _AccountSlot extends StatelessWidget {
               height: 40,
               width: 40,
               decoration: BoxDecoration(
-                color: AppColors.forest.withOpacity(0.10),
+                color: AppColors.forest.withValues(alpha: 0.10),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(

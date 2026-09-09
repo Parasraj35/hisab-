@@ -69,7 +69,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 children: [
                   CircleAvatar(
                     radius: 32,
-                    backgroundColor: AppColors.forest.withOpacity(0.10),
+                    backgroundColor: AppColors.forest.withValues(alpha: 0.10),
                     backgroundImage:
                         hasPhoto ? NetworkImage(user!.avatarUrl) : null,
                     child: hasPhoto
@@ -170,7 +170,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 iconColor: const Color(0xFF8B5CF6),
                 onTap: () => context.push('/help'),
               ),
-              SettingsTile(
+              const SettingsTile(
                 title: 'About HISAB',
                 subtitle: 'Version 1.0.0',
                 icon: Icons.info_outline_rounded,

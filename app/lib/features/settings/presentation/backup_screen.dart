@@ -110,7 +110,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
                           height: 40,
                           width: 40,
                           decoration: BoxDecoration(
-                            color: AppColors.accent.withOpacity(0.16),
+                            color: AppColors.accent.withValues(alpha: 0.16),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: const Icon(Icons.cloud_done_outlined,

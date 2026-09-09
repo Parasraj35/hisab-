@@ -24,8 +24,9 @@ import 'data/dashboard_repository.dart';
 String _monthInsight(double income, double expense, String currency) {
   if (income == 0 && expense == 0) return 'No activity yet this month';
   final net = income - expense;
-  if (net > 0)
+  if (net > 0) {
     return "You're ${Fmt.currency(net, code: currency)} ahead this month";
+  }
   if (net < 0) {
     return "You've spent ${Fmt.currency(net.abs(), code: currency)} more than you earned";
   }
@@ -98,7 +99,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         leading: IconButton(
           icon: CircleAvatar(
             radius: 16,
-            backgroundColor: Colors.white.withOpacity(0.16),
+            backgroundColor: Colors.white.withValues(alpha: 0.16),
             backgroundImage: (user?.avatarUrl.isNotEmpty ?? false)
                 ? NetworkImage(user!.avatarUrl)
                 : null,
@@ -230,7 +231,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     label: 'Expense',
                     color: context.cExpense,
                     soft: context.isDark
-                        ? context.cExpense.withOpacity(0.16)
+                        ? context.cExpense.withValues(alpha: 0.16)
                         : AppColors.expenseSoft,
                     onTap: () => context.push('/add-expense'),
                   ),
@@ -239,7 +240,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     label: 'Income',
                     color: context.cIncome,
                     soft: context.isDark
-                        ? context.cIncome.withOpacity(0.16)
+                        ? context.cIncome.withValues(alpha: 0.16)
                         : AppColors.incomeSoft,
                     onTap: () => context.push('/add-income'),
                   ),
@@ -255,7 +256,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     icon: Icons.handshake_outlined,
                     label: 'Lend/Borrow',
                     color: context.cWarning,
-                    soft: context.cWarning.withOpacity(0.12),
+                    soft: context.cWarning.withValues(alpha: 0.12),
                     onTap: () => context.push('/debts'),
                   ),
                 ],
@@ -317,7 +318,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ListTile(
               leading: CircleAvatar(
                 backgroundColor: context.isDark
-                    ? context.cExpense.withOpacity(0.14)
+                    ? context.cExpense.withValues(alpha: 0.14)
                     : AppColors.expenseSoft,
                 child: Icon(Icons.arrow_upward_rounded,
                     color: context.cExpense, size: 20),
@@ -331,7 +332,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ListTile(
               leading: CircleAvatar(
                 backgroundColor: context.isDark
-                    ? context.cIncome.withOpacity(0.14)
+                    ? context.cIncome.withValues(alpha: 0.14)
                     : AppColors.incomeSoft,
                 child: Icon(Icons.arrow_downward_rounded,
                     color: context.cIncome, size: 20),
@@ -344,7 +345,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
             ListTile(
               leading: CircleAvatar(
-                backgroundColor: AppColors.info.withOpacity(0.12),
+                backgroundColor: AppColors.info.withValues(alpha: 0.12),
                 child: const Icon(Icons.swap_horiz_rounded,
                     color: AppColors.info, size: 20),
               ),
@@ -356,7 +357,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
             ListTile(
               leading: CircleAvatar(
-                backgroundColor: context.cWarning.withOpacity(0.12),
+                backgroundColor: context.cWarning.withValues(alpha: 0.12),
                 child: Icon(Icons.handshake_outlined,
                     color: context.cWarning, size: 20),
               ),
@@ -368,7 +369,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
             ListTile(
               leading: CircleAvatar(
-                backgroundColor: context.cAccent.withOpacity(0.18),
+                backgroundColor: context.cAccent.withValues(alpha: 0.18),
                 child: Icon(Icons.savings_outlined,
                     color: context.cPrimary, size: 20),
               ),
@@ -684,7 +685,7 @@ class _BalanceHeader extends StatelessWidget {
                 Text(
                   'Total Balance',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.75),
+                    color: Colors.white.withValues(alpha: 0.75),
                     fontSize: 14,
                   ),
                 ),
@@ -727,7 +728,7 @@ class _BalanceHeader extends StatelessWidget {
                   Text(
                     insight,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.68),
+                      color: Colors.white.withValues(alpha: 0.68),
                       fontSize: 12.5,
                       fontWeight: FontWeight.w500,
                     ),
@@ -743,7 +744,7 @@ class _BalanceHeader extends StatelessWidget {
               height: 44,
               width: 44,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.16),
+                color: Colors.white.withValues(alpha: 0.16),
                 shape: BoxShape.circle,
               ),
               child: Icon(

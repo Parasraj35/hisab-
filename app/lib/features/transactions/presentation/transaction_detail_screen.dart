@@ -80,7 +80,7 @@ class _Body extends ConsumerWidget {
                 height: 66,
                 width: 66,
                 decoration: BoxDecoration(
-                  color: _accent.withOpacity(0.12),
+                  color: _accent.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Icon(
@@ -106,7 +106,7 @@ class _Body extends ConsumerWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: _accent.withOpacity(0.10),
+                  color: _accent.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(_typeLabel,

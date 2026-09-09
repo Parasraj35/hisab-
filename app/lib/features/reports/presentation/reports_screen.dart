@@ -309,7 +309,7 @@ class _LegendRow extends StatelessWidget {
         AnimatedContainer(
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-          color: highlighted ? color.withOpacity(0.06) : Colors.transparent,
+          color: highlighted ? color.withValues(alpha: 0.06) : Colors.transparent,
           child: Row(
             children: [
               Container(
@@ -441,10 +441,10 @@ class _TrendCard extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.md),
-          Row(
+          const Row(
             children: [
               _LegendDot(color: AppColors.accent, label: 'Income'),
-              const SizedBox(width: AppSpacing.lg),
+              SizedBox(width: AppSpacing.lg),
               _LegendDot(color: AppColors.expense, label: 'Expense'),
             ],
           ),

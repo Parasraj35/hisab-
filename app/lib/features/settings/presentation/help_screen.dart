@@ -79,7 +79,7 @@ class HelpScreen extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text("We're here to help",
                     style: TextStyle(
-                        color: Colors.white.withOpacity(0.7), fontSize: 12)),
+                        color: Colors.white.withValues(alpha: 0.7), fontSize: 12)),
               ],
             ),
           ),

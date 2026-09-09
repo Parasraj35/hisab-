@@ -80,11 +80,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         _loading = false;
       });
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _error = e.toString();
           _loading = false;
         });
+      }
     }
   }
 

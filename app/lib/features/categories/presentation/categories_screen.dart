@@ -114,7 +114,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                           height: 36,
                           width: 36,
                           decoration: BoxDecoration(
-                            color: color.withOpacity(0.14),
+                            color: color.withValues(alpha: 0.14),
                             borderRadius: BorderRadius.circular(9),
                           ),
                           child: Icon(iconFromSlug(category.icon),
@@ -248,7 +248,7 @@ class _CategoryFormSheetState extends ConsumerState<_CategoryFormSheet> {
   }
 
   String get _colorHex =>
-      '#${_color.value.toRadixString(16).substring(2).toUpperCase()}';
+      '#${_color.toARGB32().toRadixString(16).substring(2).toUpperCase()}';
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
@@ -313,7 +313,7 @@ class _CategoryFormSheetState extends ConsumerState<_CategoryFormSheet> {
                     width: 42,
                     decoration: BoxDecoration(
                       color: selected
-                          ? _color.withOpacity(0.16)
+                          ? _color.withValues(alpha: 0.16)
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(

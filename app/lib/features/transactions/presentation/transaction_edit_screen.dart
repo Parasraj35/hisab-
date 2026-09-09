@@ -112,12 +112,14 @@ class _EditFormState extends ConsumerState<_EditForm> {
     final amount = double.parse(_amount.text.replaceAll(',', ''));
 
     if (amount != widget.item.amount) changes['amount'] = amount;
-    if (_note.text.trim() != widget.item.note)
+    if (_note.text.trim() != widget.item.note) {
       changes['note'] = _note.text.trim();
+    }
     if (_date != widget.item.date) changes['date'] = _date.toIso8601String();
     if (_accountId != widget.item.account?.id) changes['account'] = _accountId;
-    if (_categoryId != widget.item.category?.id)
+    if (_categoryId != widget.item.category?.id) {
       changes['category'] = _categoryId;
+    }
     if (_toAccountId != widget.item.toAccount?.id) {
       changes['toAccount'] = _toAccountId;
     }

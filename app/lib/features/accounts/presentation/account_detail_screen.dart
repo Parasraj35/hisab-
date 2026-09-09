@@ -88,7 +88,7 @@ class _Body extends ConsumerWidget {
                   height: 66,
                   width: 66,
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.12),
+                    color: color.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Icon(iconForAccountType(account.type),
@@ -109,7 +109,7 @@ class _Body extends ConsumerWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.10),
+                    color: color.withValues(alpha: 0.10),
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(account.type.toUpperCase(),
@@ -259,8 +259,9 @@ class _Body extends ConsumerWidget {
                   context.pop();
                 }
               } catch (e) {
-                if (context.mounted)
+                if (context.mounted) {
                   showAppSnack(context, e.toString(), isError: true);
+                }
               }
             },
             child:

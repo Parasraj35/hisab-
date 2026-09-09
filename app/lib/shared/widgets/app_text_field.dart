@@ -69,7 +69,7 @@ class AppTextField extends StatelessWidget {
 
 /// Large amount entry field (Add Expense / Add Income / Transfer screens).
 class AmountField extends StatelessWidget {
-  AmountField({
+  const AmountField({
     super.key,
     required this.controller,
     this.currency = 'PKR',

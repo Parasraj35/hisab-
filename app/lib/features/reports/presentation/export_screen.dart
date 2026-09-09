@@ -237,7 +237,7 @@ class _FileCard extends StatelessWidget {
               width: 44,
               decoration: BoxDecoration(
                 color: (isPdf ? AppColors.expense : AppColors.income)
-                    .withOpacity(0.12),
+                    .withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(

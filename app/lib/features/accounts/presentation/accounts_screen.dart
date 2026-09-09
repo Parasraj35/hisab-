@@ -220,8 +220,9 @@ class AccountsScreen extends ConsumerWidget {
                           : '${account.name} deleted');
                 }
               } catch (e) {
-                if (context.mounted)
+                if (context.mounted) {
                   showAppSnack(context, e.toString(), isError: true);
+                }
               }
             },
             child:
@@ -353,8 +354,9 @@ class _AccountFormSheetState extends ConsumerState<_AccountFormSheet> {
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               validator: (v) {
-                if (v == null || v.trim().isEmpty)
+                if (v == null || v.trim().isEmpty) {
                   return 'Enter an opening balance';
+                }
                 if (double.tryParse(v.replaceAll(',', '')) == null) {
                   return 'Enter a valid amount';
                 }

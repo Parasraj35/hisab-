@@ -101,7 +101,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/help', builder: (_, __) => const HelpScreen()),
     ],
     errorBuilder: (_, state) =>
-        ComingSoonScreen(title: 'Not found', batch: 'a later batch'),
+        const ComingSoonScreen(title: 'Not found', batch: 'a later batch'),
     redirect: (context, state) {
       final status = ref.read(authControllerProvider).status;
       final loc = state.matchedLocation;

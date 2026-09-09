@@ -170,8 +170,9 @@ class _AccountSetupScreenState extends ConsumerState<AccountSetupScreen> {
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
                   validator: (v) {
-                    if (v == null || v.trim().isEmpty)
+                    if (v == null || v.trim().isEmpty) {
                       return 'Enter an initial balance';
+                    }
                     final parsed = double.tryParse(v.replaceAll(',', ''));
                     if (parsed == null) return 'Enter a valid amount';
                     if (parsed < 0) return 'Balance cannot be negative';

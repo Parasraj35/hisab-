@@ -48,8 +48,9 @@ class NotificationsScreen extends ConsumerWidget {
               onPressed: () async {
                 await repo.markAllRead();
                 await refresh();
-                if (context.mounted)
+                if (context.mounted) {
                   showAppSnack(context, 'All marked as read');
+                }
               },
               child: const Text('Mark all read',
                   style: TextStyle(color: Colors.white, fontSize: 12)),
@@ -97,7 +98,7 @@ class NotificationsScreen extends ConsumerWidget {
                   child: Container(
                     color: item.isRead
                         ? Colors.transparent
-                        : AppColors.accent.withOpacity(0.06),
+                        : AppColors.accent.withValues(alpha: 0.06),
                     child: ListTile(
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: AppSpacing.xl, vertical: AppSpacing.xs),
@@ -105,7 +106,7 @@ class NotificationsScreen extends ConsumerWidget {
                         height: 38,
                         width: 38,
                         decoration: BoxDecoration(
-                          color: color.withOpacity(0.12),
+                          color: color.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Icon(icon, size: 19, color: color),

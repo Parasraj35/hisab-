@@ -34,7 +34,7 @@ class AppDropdown<T> extends StatelessWidget {
                 color: context.cTextSecondary, fontWeight: FontWeight.w500)),
         const SizedBox(height: AppSpacing.sm),
         DropdownButtonFormField<T>(
-          value: value,
+          initialValue: value,
           isExpanded: true,
           validator: validator,
           icon: Icon(Icons.keyboard_arrow_down_rounded,

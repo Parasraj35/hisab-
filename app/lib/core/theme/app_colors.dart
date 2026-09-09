@@ -106,5 +106,5 @@ extension AppPalette on BuildContext {
   /// Quick Action tile fill. In dark mode the pastel background is replaced
   /// with a low-opacity wash of the icon colour so it doesn't glow.
   Color quickTint(Color base, Color softLight) =>
-      isDark ? base.withOpacity(0.16) : softLight;
+      isDark ? base.withValues(alpha: 0.16) : softLight;
 }

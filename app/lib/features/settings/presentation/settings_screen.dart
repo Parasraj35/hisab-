@@ -160,7 +160,7 @@ class SettingsScreen extends ConsumerWidget {
                 iconColor: const Color(0xFF8B5CF6),
                 onTap: () => context.push('/help'),
               ),
-              SettingsTile(
+              const SettingsTile(
                 title: 'About HISAB',
                 subtitle: 'Version 1.0.0',
                 icon: Icons.info_outline_rounded,

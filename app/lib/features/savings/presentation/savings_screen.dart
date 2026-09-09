@@ -175,7 +175,7 @@ class _SavingsHeader extends StatelessWidget {
         children: [
           Text('My Savings',
               style: TextStyle(
-                  color: Colors.white.withOpacity(0.7), fontSize: 12)),
+                  color: Colors.white.withValues(alpha: 0.7), fontSize: 12)),
           const SizedBox(height: 6),
           FittedBox(
             fit: BoxFit.scaleDown,
@@ -192,7 +192,7 @@ class _SavingsHeader extends StatelessWidget {
           Text(
             'Goal: ${Fmt.currency(payload.totalTarget, code: payload.currency)}',
             style:
-                TextStyle(color: Colors.white.withOpacity(0.65), fontSize: 12),
+                TextStyle(color: Colors.white.withValues(alpha: 0.65), fontSize: 12),
           ),
           const SizedBox(height: AppSpacing.lg),
           Row(
@@ -203,7 +203,7 @@ class _SavingsHeader extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: payload.progress.clamp(0.0, 1.0),
                     minHeight: 7,
-                    backgroundColor: Colors.white.withOpacity(0.18),
+                    backgroundColor: Colors.white.withValues(alpha: 0.18),
                     valueColor: const AlwaysStoppedAnimation(AppColors.accent),
                   ),
                 ),
@@ -258,7 +258,7 @@ class _GoalCard extends StatelessWidget {
                 height: 38,
                 width: 38,
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.14),
+                  color: color.withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(iconFromSlug(goal.icon), size: 19, color: color),
@@ -497,7 +497,7 @@ class _GoalFormSheetState extends ConsumerState<_GoalFormSheet> {
                     width: 44,
                     decoration: BoxDecoration(
                       color: selected
-                          ? AppColors.accent.withOpacity(0.18)
+                          ? AppColors.accent.withValues(alpha: 0.18)
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(

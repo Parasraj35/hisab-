@@ -316,7 +316,7 @@ class _DebtCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 19,
-                backgroundColor: AppColors.forest.withOpacity(0.10),
+                backgroundColor: AppColors.forest.withValues(alpha: 0.10),
                 child: Text(
                   Fmt.initials(debt.personName),
                   style: const TextStyle(
@@ -365,7 +365,7 @@ class _DebtCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                     decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.12),
+                      color: statusColor.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(statusLabel,

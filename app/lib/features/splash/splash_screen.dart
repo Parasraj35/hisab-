@@ -184,7 +184,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                         'Manage Money.\nMake Better Decisions.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.72),
+                          color: Colors.white.withValues(alpha: 0.72),
                           fontSize: 13,
                           height: 1.5,
                         ),
@@ -217,16 +217,16 @@ class _LedgerPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final rule = Paint()
-      ..color = Colors.white.withOpacity(0.05)
+      ..color = Colors.white.withValues(alpha: 0.05)
       ..strokeWidth = 1;
     for (double y = size.height * 0.1; y < size.height; y += _rowHeight) {
       canvas.drawLine(Offset(0, y), Offset(size.width, y), rule);
     }
     canvas.drawLine(
-      Offset(_marginX, 0),
+      const Offset(_marginX, 0),
       Offset(_marginX, size.height),
       Paint()
-        ..color = AppColors.accent.withOpacity(0.10)
+        ..color = AppColors.accent.withValues(alpha: 0.10)
         ..strokeWidth = 1,
     );
   }
@@ -265,7 +265,7 @@ class _LoadingBarState extends State<_LoadingBar>
       child: ClipRRect(
         borderRadius: BorderRadius.circular(999),
         child: DecoratedBox(
-          decoration: BoxDecoration(color: Colors.white.withOpacity(0.14)),
+          decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.14)),
           child: AnimatedBuilder(
             animation: _controller,
             builder: (context, _) => Align(
