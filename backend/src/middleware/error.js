@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import * as Sentry from '@sentry/node';
 import { env } from '../config/env.js';
 import { ApiError } from '../utils/ApiError.js';
 
@@ -25,7 +26,10 @@ export const errorHandler = (err, _req, res, _next) => {
     error = new ApiError(error.statusCode || 500, error.message || 'Internal server error');
   }
 
-  if (env.nodeEnv !== 'test' && error.statusCode >= 500) console.error(err);
+  if (env.nodeEnv !== 'test' && error.statusCode >= 500) {
+    console.error(err);
+    Sentry.captureException(err);
+  }
 
   res.status(error.statusCode).json({
     success: false,

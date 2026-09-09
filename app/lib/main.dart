@@ -1,15 +1,29 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/state/auth_controller.dart';
 import 'features/settings/data/settings_repository.dart';
 
-void main() {
+// A DSN is write-only by design (send crash reports, nothing else) — safe
+// to commit, same as the AdMob IDs elsewhere in this file's neighborhood.
+const _sentryDsn =
+    'https://c7b5ac38d6b533683a6112da77075089@o4512056645582848.ingest.us.sentry.io/4512056661508096';
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  runApp(const ProviderScope(child: HisabApp()));
+
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = _sentryDsn;
+      options.environment = kReleaseMode ? 'production' : 'development';
+    },
+    appRunner: () => runApp(const ProviderScope(child: HisabApp())),
+  );
 }
 
 class HisabApp extends ConsumerWidget {

@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/node';
 import { app } from './app.js';
 import { env } from './config/env.js';
 import { connectDB } from './config/db.js';
@@ -15,11 +16,14 @@ async function start() {
   ['SIGINT', 'SIGTERM'].forEach((s) => process.on(s, () => shutdown(s)));
   process.on('unhandledRejection', (err) => {
     console.error('[server] Unhandled rejection', err);
-    server.close(() => process.exit(1));
+    Sentry.captureException(err);
+    server.close(() => Sentry.close(2000).then(() => process.exit(1)));
   });
 }
 
-start().catch((err) => {
+start().catch(async (err) => {
   console.error('[server] Failed to start', err);
+  Sentry.captureException(err);
+  await Sentry.close(2000); // give the report a moment to actually send before exiting
   process.exit(1);
 });

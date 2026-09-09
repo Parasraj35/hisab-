@@ -32,4 +32,5 @@ export const env = {
     // Swap for your own verified domain once you have one.
     from: process.env.EMAIL_FROM || 'HISAB <onboarding@resend.dev>',
   },
+  sentryDsn: process.env.SENTRY_DSN || null,
 };

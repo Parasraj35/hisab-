@@ -66,10 +66,12 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
 
   Future<void> _share() async {
     if (_file == null) return;
-    await Share.shareXFiles(
-      [XFile(_file!.path)],
-      subject: 'HISAB Report',
-      text: 'My HISAB report for ${_period.label.toLowerCase()}',
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [XFile(_file!.path)],
+        subject: 'HISAB Report',
+        text: 'My HISAB report for ${_period.label.toLowerCase()}',
+      ),
     );
   }
 
