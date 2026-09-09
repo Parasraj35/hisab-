@@ -32,7 +32,7 @@ export const profileSchema = z.object({
 export const setupAccountSchema = z.object({
   name: z.string().min(1, 'Account name is required'),
   currency: z.string().default('PKR'),
-  initialBalance: z.coerce.number().min(0).default(0),
+  initialBalance: z.coerce.number().min(0).finite('Enter a valid amount').default(0),
   type: z.enum(['cash', 'bank', 'wallet', 'card', 'other']).default('cash'),
 });
 

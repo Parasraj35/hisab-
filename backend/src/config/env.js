@@ -21,6 +21,9 @@ export const env = {
   },
   otp: {
     ttlSeconds: Number(process.env.OTP_TTL_SECONDS || 300),
-    devEcho: process.env.OTP_DEV_ECHO === 'true',
+    // Forced off in production regardless of the env var — this echoes the
+    // raw code back in the API response, meant only for local dev without a
+    // real SMS/email provider wired up.
+    devEcho: process.env.NODE_ENV !== 'production' && process.env.OTP_DEV_ECHO === 'true',
   },
 };

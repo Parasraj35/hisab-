@@ -15,7 +15,7 @@ const objectId = z.string().refine(mongoose.isValidObjectId, 'Invalid id');
 export const createTransactionSchema = z
   .object({
     type: z.enum(['expense', 'income', 'transfer']),
-    amount: z.coerce.number().positive('Amount must be greater than zero'),
+    amount: z.coerce.number().finite('Enter a valid amount').positive('Amount must be greater than zero'),
     account: objectId,
     toAccount: objectId.optional().nullable(),
     category: objectId.optional().nullable(),
@@ -38,7 +38,7 @@ export const createTransactionSchema = z
   });
 
 export const updateTransactionSchema = z.object({
-  amount: z.coerce.number().positive().optional(),
+  amount: z.coerce.number().finite('Enter a valid amount').positive().optional(),
   account: objectId.optional(),
   toAccount: objectId.optional().nullable(),
   category: objectId.optional().nullable(),
@@ -53,8 +53,8 @@ export const listQuerySchema = z.object({
   from: z.coerce.date().optional(),
   to: z.coerce.date().optional(),
   search: z.string().optional(),
-  minAmount: z.coerce.number().optional(),
-  maxAmount: z.coerce.number().optional(),
+  minAmount: z.coerce.number().finite().optional(),
+  maxAmount: z.coerce.number().finite().optional(),
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(100).default(20),
 });

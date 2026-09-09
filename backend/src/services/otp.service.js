@@ -1,8 +1,10 @@
+import { randomInt } from 'crypto';
 import { Otp } from '../models/Otp.js';
 import { env } from '../config/env.js';
 import { ApiError } from '../utils/ApiError.js';
 
-const generateCode = () => String(Math.floor(100000 + Math.random() * 900000));
+// crypto.randomInt, not Math.random — OTP codes are a security boundary.
+const generateCode = () => String(randomInt(100000, 1000000));
 
 export async function issueOtp(user, purpose = 'verify_account') {
   await Otp.updateMany(
@@ -19,8 +21,12 @@ export async function issueOtp(user, purpose = 'verify_account') {
     expiresAt: new Date(Date.now() + env.otp.ttlSeconds * 1000),
   });
 
-  // Wire a real SMS/email provider here (Twilio, SendGrid, etc.)
-  console.log(`[otp] ${purpose} code for ${user.email}: ${code}`);
+  // Wire a real SMS/email provider here (Twilio, SendGrid, etc.). Until then
+  // this logs the code for local dev only — never in production, where a
+  // plaintext OTP in logs would defeat the whole point of the code.
+  if (env.nodeEnv !== 'production') {
+    console.log(`[otp] ${purpose} code for ${user.email}: ${code}`);
+  }
 
   return { expiresIn: env.otp.ttlSeconds, ...(env.otp.devEcho ? { devCode: code } : {}) };
 }

@@ -7,8 +7,8 @@ import { pushNotification } from '../services/notification.service.js';
 
 export const createGoalSchema = z.object({
   name: z.string().min(1, 'Goal name is required').max(60),
-  targetAmount: z.coerce.number().positive('Target must be greater than zero'),
-  savedAmount: z.coerce.number().min(0).default(0),
+  targetAmount: z.coerce.number().finite('Enter a valid amount').positive('Target must be greater than zero'),
+  savedAmount: z.coerce.number().finite('Enter a valid amount').min(0).default(0),
   deadline: z.coerce.date().optional().nullable(),
   icon: z.string().default('target'),
   color: z.string().default('#4CAF8A'),
@@ -17,7 +17,7 @@ export const createGoalSchema = z.object({
 export const updateGoalSchema = createGoalSchema.partial();
 
 export const contributionSchema = z.object({
-  amount: z.coerce.number().positive('Amount must be greater than zero'),
+  amount: z.coerce.number().finite('Enter a valid amount').positive('Amount must be greater than zero'),
   date: z.coerce.date().default(() => new Date()),
   note: z.string().max(200).optional().default(''),
 });

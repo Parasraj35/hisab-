@@ -12,7 +12,7 @@ export const createDebtSchema = z.object({
   direction: z.enum(['lent', 'borrowed']),
   personName: z.string().min(1, 'Person name is required').max(60),
   personPhone: z.string().max(20).optional().default(''),
-  amount: z.coerce.number().positive('Amount must be greater than zero'),
+  amount: z.coerce.number().finite('Enter a valid amount').positive('Amount must be greater than zero'),
   account: objectId.optional().nullable(),
   dueDate: z.coerce.date().optional().nullable(),
   note: z.string().max(200).optional().default(''),
@@ -21,7 +21,7 @@ export const createDebtSchema = z.object({
 export const updateDebtSchema = createDebtSchema.partial();
 
 export const settlementSchema = z.object({
-  amount: z.coerce.number().positive('Amount must be greater than zero'),
+  amount: z.coerce.number().finite('Enter a valid amount').positive('Amount must be greater than zero'),
   date: z.coerce.date().default(() => new Date()),
   note: z.string().max(200).optional().default(''),
 });

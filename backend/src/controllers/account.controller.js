@@ -13,7 +13,7 @@ export const createAccountSchema = z.object({
   icon: z.string().optional(),
   color: z.string().optional(),
   currency: z.string().default('PKR'),
-  initialBalance: z.coerce.number().default(0),
+  initialBalance: z.coerce.number().finite('Enter a valid amount').default(0),
 });
 
 export const updateAccountSchema = createAccountSchema.partial().extend({
