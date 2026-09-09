@@ -623,7 +623,10 @@ class _QuickAction extends StatelessWidget {
               decoration: BoxDecoration(
                 color: soft,
                 shape: BoxShape.circle,
-                boxShadow: Clay.shadows(context, color, small: true),
+                // Flat in dark mode — see SummaryChip for the same reasoning.
+                boxShadow: context.isDark
+                    ? null
+                    : Clay.shadows(context, color, small: true),
               ),
               child: Icon(icon, size: 23, color: color),
             ),

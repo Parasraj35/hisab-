@@ -38,7 +38,10 @@ class SummaryChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: soft,
         borderRadius: BorderRadius.circular(compact ? 12 : 16),
-        boxShadow: Clay.shadows(context, color, small: true),
+        // Flat in dark mode: a shadow tinted from an already-vivid accent
+        // reads as a glow against the dark ground rather than depth.
+        boxShadow:
+            context.isDark ? null : Clay.shadows(context, color, small: true),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
