@@ -26,4 +26,10 @@ export const env = {
     // real SMS/email provider wired up.
     devEcho: process.env.NODE_ENV !== 'production' && process.env.OTP_DEV_ECHO === 'true',
   },
+  email: {
+    apiKey: process.env.RESEND_API_KEY || null,
+    // Resend's shared test sender — works with no domain verification.
+    // Swap for your own verified domain once you have one.
+    from: process.env.EMAIL_FROM || 'HISAB <onboarding@resend.dev>',
+  },
 };
