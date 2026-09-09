@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
@@ -15,44 +16,78 @@ class SplashScreen extends ConsumerStatefulWidget {
 }
 
 class _SplashScreenState extends ConsumerState<SplashScreen>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
+    with TickerProviderStateMixin {
+  // The mark gets its own spring-driven controller — real motion, not an
+  // eased curve — so it settles with a small, physical overshoot instead of
+  // arriving mechanically on schedule. Bound wide enough that the overshoot
+  // itself is never clamped.
+  late final AnimationController _markController = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 1400),
-  )..forward();
-
-  // Staggered rather than simultaneous — the mark settles first, then the
-  // wordmark, then the tagline and progress bar follow it in.
-  late final Animation<double> _markScale = CurvedAnimation(
-    parent: _controller,
-    curve: const Interval(0.0, 0.55, curve: Curves.easeOutBack),
+    lowerBound: 0,
+    upperBound: 1.3,
   );
+
+  // A second, independent loop starts once the spring settles — a slow,
+  // barely-there breathing pulse so the mark reads as alive, not a frozen
+  // frame that happens to have finished animating in.
+  late final AnimationController _breathController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 2600),
+  );
+  late final Animation<double> _breath = Tween<double>(begin: 1.0, end: 1.035)
+      .animate(
+          CurvedAnimation(parent: _breathController, curve: Curves.easeInOut));
+
+  // Text and progress bar still use a conventional staggered timeline —
+  // it's the mark that needed to feel physical, not the copy.
+  late final AnimationController _textController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1100),
+  )..forward();
+  // The mark's opacity rides this bounded timeline too — its own controller
+  // is spring-driven and legitimately overshoots past 1.0, which an
+  // Interval curve can't safely sit on top of.
   late final Animation<double> _markFade = CurvedAnimation(
-    parent: _controller,
-    curve: const Interval(0.0, 0.4, curve: Curves.easeOut),
+    parent: _textController,
+    curve: const Interval(0.0, 0.3, curve: Curves.easeOut),
   );
   late final Animation<double> _titleFade = CurvedAnimation(
-    parent: _controller,
-    curve: const Interval(0.3, 0.65, curve: Curves.easeOut),
+    parent: _textController,
+    curve: const Interval(0.15, 0.55, curve: Curves.easeOut),
   );
   late final Animation<Offset> _titleSlide = Tween<Offset>(
-    begin: const Offset(0, 0.25),
+    begin: const Offset(0, 0.3),
     end: Offset.zero,
   ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.3, 0.65, curve: Curves.easeOutCubic)));
+      parent: _textController,
+      curve: const Interval(0.15, 0.55, curve: Curves.easeOutCubic)));
   late final Animation<double> _taglineFade = CurvedAnimation(
-    parent: _controller,
-    curve: const Interval(0.5, 0.8, curve: Curves.easeOut),
+    parent: _textController,
+    curve: const Interval(0.4, 0.75, curve: Curves.easeOut),
   );
   late final Animation<double> _progressFade = CurvedAnimation(
-    parent: _controller,
-    curve: const Interval(0.7, 1.0, curve: Curves.easeOut),
+    parent: _textController,
+    curve: const Interval(0.65, 1.0, curve: Curves.easeOut),
   );
 
   @override
   void initState() {
     super.initState();
+
+    _markController.animateWith(
+      SpringSimulation(
+          const SpringDescription(mass: 1, stiffness: 140, damping: 11),
+          0,
+          1,
+          0),
+    );
+    // The spring settles by ~900ms; a fixed delay is simpler and more
+    // reliable here than trying to detect "at rest" from a bounded
+    // AnimationStatus, which doesn't map cleanly onto spring overshoot.
+    Future.delayed(const Duration(milliseconds: 900), () {
+      if (mounted) _breathController.repeat(reverse: true);
+    });
+
     // Minimum 1.6s brand moment, then resolve where the user belongs.
     // (The App Open ad is triggered later, from DashboardScreen — see
     // AppOpenAdManager for why it's kept off the splash-to-dashboard path.)
@@ -64,7 +99,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
   @override
   void dispose() {
-    _controller.dispose();
+    _markController.dispose();
+    _breathController.dispose();
+    _textController.dispose();
     super.dispose();
   }
 
@@ -90,29 +127,47 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                 ),
               ),
             ),
-            // Two soft ambient glows, off-center for asymmetric depth rather
-            // than a perfectly centered, template-shaped layout.
-            Positioned(
-              top: -120,
-              right: -80,
-              child: _Glow(color: AppColors.accent, size: 320, opacity: 0.16),
-            ),
-            Positioned(
-              bottom: -140,
-              left: -100,
-              child: _Glow(color: AppColors.accent, size: 380, opacity: 0.12),
+            // A page of ruled ledger lines, almost invisible — the one visual
+            // idea that's actually *about* HISAB (an account book) rather
+            // than a stock fintech-gradient backdrop.
+            const Positioned.fill(
+                child: IgnorePointer(
+                    child: CustomPaint(painter: _LedgerPainter()))),
+            // Corners settle a shade darker than the center — depth from
+            // tone, not a bolted-on accent-colored glow.
+            const Positioned.fill(
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                      center: Alignment(0, -0.2),
+                      radius: 1.15,
+                      colors: [Colors.transparent, Color(0x33000000)],
+                    ),
+                  ),
+                ),
+              ),
             ),
             SafeArea(
-              child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    FadeTransition(
-                      opacity: _markFade,
-                      child: ScaleTransition(
-                        scale: _markScale,
-                        child: const BrandMark(size: 104),
+                    // Weighted 5:4 rather than a dead-centered 1:1 split —
+                    // the mark sits slightly above center, the way a hand
+                    // laying this out would favor the upper two-thirds.
+                    const Spacer(flex: 5),
+                    AnimatedBuilder(
+                      animation: Listenable.merge(
+                          [_markController, _breathController]),
+                      builder: (context, child) => FadeTransition(
+                        opacity: _markFade,
+                        child: Transform.scale(
+                          scale: _markController.value * _breath.value,
+                          child: child,
+                        ),
                       ),
+                      child: const BrandMark(size: 104),
                     ),
                     const SizedBox(height: 28),
                     FadeTransition(
@@ -135,11 +190,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                         ),
                       ),
                     ),
-                    const SizedBox(height: 72),
+                    const Spacer(flex: 4),
                     FadeTransition(
-                      opacity: _progressFade,
-                      child: const _LoadingBar(),
-                    ),
+                        opacity: _progressFade, child: const _LoadingBar()),
+                    const SizedBox(height: 28),
                   ],
                 ),
               ),
@@ -151,27 +205,34 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   }
 }
 
-class _Glow extends StatelessWidget {
-  const _Glow({required this.color, required this.size, required this.opacity});
-  final Color color;
-  final double size;
-  final double opacity;
+/// Faint horizontal ledger rules across the full screen, with a narrow
+/// margin rule near the left edge — the two marks that make a blank page
+/// read as an account book rather than plain paper.
+class _LedgerPainter extends CustomPainter {
+  const _LedgerPainter();
+
+  static const _rowHeight = 34.0;
+  static const _marginX = 22.0;
 
   @override
-  Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: Container(
-        height: size,
-        width: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: RadialGradient(
-            colors: [color.withOpacity(opacity), color.withOpacity(0)],
-          ),
-        ),
-      ),
+  void paint(Canvas canvas, Size size) {
+    final rule = Paint()
+      ..color = Colors.white.withOpacity(0.05)
+      ..strokeWidth = 1;
+    for (double y = size.height * 0.1; y < size.height; y += _rowHeight) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), rule);
+    }
+    canvas.drawLine(
+      Offset(_marginX, 0),
+      Offset(_marginX, size.height),
+      Paint()
+        ..color = AppColors.accent.withOpacity(0.10)
+        ..strokeWidth = 1,
     );
   }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 /// A slim indeterminate bar — replaces the generic spinner-and-caption
