@@ -112,7 +112,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         fontWeight: FontWeight.w700),
                   ),
           ),
-          onPressed: () => context.push('/settings'),
+          onPressed: () => context.push('/profile'),
         ),
         title: Text(firstName != null ? '$greeting, $firstName' : greeting),
         actions: [
