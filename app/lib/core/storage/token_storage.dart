@@ -1,5 +1,4 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class TokenStorage {
   static const _storage = FlutterSecureStorage(
@@ -7,7 +6,6 @@ class TokenStorage {
   );
   static const _kAccess = 'hisab_access_token';
   static const _kRefresh = 'hisab_refresh_token';
-  static const _kOnboarded = 'hisab_onboarding_seen';
 
   Future<void> saveTokens(
       {required String access, required String refresh}) async {
@@ -21,15 +19,5 @@ class TokenStorage {
   Future<void> clear() async {
     await _storage.delete(key: _kAccess);
     await _storage.delete(key: _kRefresh);
-  }
-
-  Future<bool> hasSeenOnboarding() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_kOnboarded) ?? false;
-  }
-
-  Future<void> setOnboardingSeen() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_kOnboarded, true);
   }
 }
