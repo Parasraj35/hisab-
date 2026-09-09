@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { OAuth2Client } from 'google-auth-library';
 import { User } from '../models/User.js';
 import { Category } from '../models/Category.js';
 import { Account } from '../models/Account.js';
@@ -9,9 +8,6 @@ import { ok, created } from '../utils/respond.js';
 import { issueTokens, verifyRefreshToken } from '../utils/tokens.js';
 import { issueOtp, consumeOtp } from '../services/otp.service.js';
 import { DEFAULT_CATEGORIES, defaultsForAccountType } from '../utils/defaults.js';
-import { env } from '../config/env.js';
-
-const googleClient = env.google.webClientId ? new OAuth2Client(env.google.webClientId) : null;
 
 export const registerSchema = z.object({
   email: z.string().email('Enter a valid email'),
@@ -25,10 +21,6 @@ export const loginSchema = z.object({
 });
 
 export const otpSchema = z.object({ code: z.string().length(6, 'Enter the 6 digit code') });
-
-export const googleAuthSchema = z.object({
-  idToken: z.string().min(10, 'A Google ID token is required'),
-});
 
 export const profileSchema = z.object({
   fullName: z.string().min(2, 'Enter your full name'),
@@ -84,53 +76,6 @@ export const login = catchAsync(async (req, res) => {
 
   const tokens = issueTokens(user);
   return ok(res, { user: user.toJSON(), tokens }, 'Welcome back');
-});
-
-/** POST /api/v1/auth/google — verifies a Google ID token and signs the user in,
- * creating an account on first sign-in (linking by email if one already exists). */
-export const googleAuth = catchAsync(async (req, res) => {
-  if (!googleClient) {
-    throw ApiError.badRequest('Google sign-in is not configured on this server');
-  }
-
-  const ticket = await googleClient
-    .verifyIdToken({ idToken: req.body.idToken, audience: env.google.webClientId })
-    .catch(() => {
-      throw ApiError.unauthorized('That Google credential could not be verified');
-    });
-  const payload = ticket.getPayload();
-  if (!payload?.email) {
-    throw ApiError.unauthorized('Google did not share an email for this account');
-  }
-
-  let user = await User.findOne({ googleId: payload.sub });
-  if (!user) {
-    user = await User.findOne({ email: payload.email.toLowerCase() });
-  }
-
-  let isNewUser = false;
-  if (!user) {
-    isNewUser = true;
-    user = await User.create({
-      email: payload.email.toLowerCase(),
-      fullName: payload.name || '',
-      avatarUrl: payload.picture || '',
-      googleId: payload.sub,
-      isVerified: true,
-      onboardingStage: 'profile',
-    });
-    await seedDefaultCategories(user._id);
-  } else if (!user.googleId) {
-    user.googleId = payload.sub;
-    user.isVerified = true;
-    await user.save({ validateBeforeSave: false });
-  }
-
-  user.lastLoginAt = new Date();
-  await user.save({ validateBeforeSave: false });
-
-  const tokens = issueTokens(user);
-  return ok(res, { user: user.toJSON(), tokens, isNewUser }, 'Signed in with Google');
 });
 
 /** POST /api/v1/auth/otp/resend */

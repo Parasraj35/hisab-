@@ -24,10 +24,8 @@ const userSchema = new mongoose.Schema(
     fullName: { type: String, trim: true, default: '' },
     email: { type: String, required: true, lowercase: true, trim: true, unique: true },
     phone: { type: String, trim: true, default: '' },
-    // Optional: Google-authenticated accounts have no password.
-    password: { type: String, select: false, minlength: 8 },
+    password: { type: String, required: true, select: false, minlength: 8 },
     avatarUrl: { type: String, default: '' },
-    googleId: { type: String, default: null },
     pinHash: { type: String, select: false, default: null },
     isVerified: { type: Boolean, default: false },
     onboardingStage: {

@@ -47,16 +47,6 @@ class AuthRepository {
     );
   }
 
-  Future<AuthResult> googleAuth({required String idToken}) async {
-    final res =
-        await _api.post(ApiEndpoints.googleAuth, data: {'idToken': idToken});
-    final data = res['data'] as Map<String, dynamic>;
-    return AuthResult(
-      user: UserModel.fromJson(Map<String, dynamic>.from(data['user'])),
-      tokens: AuthTokens.fromJson(Map<String, dynamic>.from(data['tokens'])),
-    );
-  }
-
   Future<UserModel> me() async {
     final res = await _api.get(ApiEndpoints.me);
     return UserModel.fromJson(Map<String, dynamic>.from(res['data']['user']));

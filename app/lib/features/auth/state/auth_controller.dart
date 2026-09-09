@@ -115,16 +115,6 @@ class AuthController extends StateNotifier<AuthState> {
             status: _stageToStatus(result.user), user: result.user);
       });
 
-  Future<bool> loginWithGoogle({required String idToken}) => _run(() async {
-        final result = await _repo.googleAuth(idToken: idToken);
-        await _storage.saveTokens(
-          access: result.tokens!.accessToken,
-          refresh: result.tokens!.refreshToken,
-        );
-        state = state.copyWith(
-            status: _stageToStatus(result.user), user: result.user);
-      });
-
   Future<bool> verifyOtp(String code) => _run(() async {
         final user = await _repo.verifyOtp(code);
         state = state.copyWith(status: _stageToStatus(user), user: user);

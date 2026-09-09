@@ -23,9 +23,4 @@ export const env = {
     ttlSeconds: Number(process.env.OTP_TTL_SECONDS || 300),
     devEcho: process.env.OTP_DEV_ECHO === 'true',
   },
-  google: {
-    // The Web OAuth client — Android's google_sign_in sets this as
-    // serverClientId, which puts it in the ID token's audience.
-    webClientId: process.env.GOOGLE_WEB_CLIENT_ID || null,
-  },
 };
