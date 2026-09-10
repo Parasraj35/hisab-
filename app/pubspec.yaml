@@ -24,6 +24,10 @@ dependencies:
   open_filex: ^4.4.0
   google_mobile_ads: ^9.1.0
   sentry_flutter: ^9.29.0
+  sqflite: ^2.4.1
+  path: ^1.9.0
+  uuid: ^4.5.1
+  pdf: ^3.11.1
 
 dev_dependencies:
   flutter_test:
@@ -40,3 +44,12 @@ flutter_launcher_icons:
   image_path: "icons/icon.png"
   min_sdk_android: 21
   remove_alpha_ios: true
+  # The source art already fills ~95% of its own canvas edge-to-edge — the
+  # washed-out/padded look on Android wasn't the artwork, it was the missing
+  # adaptive-icon XML: without one, Android 8+ launchers synthesize their own
+  # safe-zone shrink around a legacy square icon, adding padding on top of
+  # padding. Declaring a real adaptive icon (foreground = the unchanged
+  # artwork, background = the same green so any mask clipping is invisible)
+  # stops that synthetic shrink.
+  adaptive_icon_background: "#00563B"
+  adaptive_icon_foreground: "icons/icon_foreground.png"

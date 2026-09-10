@@ -1,16 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/network/api_client.dart';
-import '../../../core/storage/token_storage.dart';
+import '../../../core/local_db/app_database.dart';
+import '../../accounts/data/account_repository.dart';
+import '../../categories/data/category_repository.dart';
 import '../data/auth_models.dart';
 import '../data/auth_repository.dart';
 
-enum AuthStatus {
-  unknown,
-  unauthenticated,
-  needsProfile,
-  needsAccount,
-  authenticated
-}
+enum AuthStatus { unknown, needsProfile, needsAccount, authenticated }
 
 class AuthState {
   const AuthState({
@@ -42,17 +37,26 @@ class AuthState {
 
 final authControllerProvider =
     StateNotifierProvider<AuthController, AuthState>((ref) => AuthController(
-          ref.read(authRepositoryProvider),
-          ref.read(tokenStorageProvider),
+          ref.read(profileRepositoryProvider),
+          ref.read(accountRepositoryProvider),
+          ref.read(categoryRepositoryProvider),
         ));
 
+/// Despite the name (kept to avoid rippling a rename through every screen
+/// that reads it), this no longer authenticates anything — there is no
+/// server, no token, nothing to log into. It just tracks whether the local
+/// profile/onboarding has been completed, sourced entirely from the local
+/// DB instead of a JWT session.
 class AuthController extends StateNotifier<AuthState> {
-  AuthController(this._repo, this._storage) : super(const AuthState());
+  AuthController(this._profileRepo, this._accountRepo, this._categoryRepo)
+      : super(const AuthState());
 
-  final AuthRepository _repo;
-  final TokenStorage _storage;
+  final ProfileRepository _profileRepo;
+  final AccountRepository _accountRepo;
+  final CategoryRepository _categoryRepo;
 
-  AuthStatus _stageToStatus(UserModel user) {
+  AuthStatus _stageToStatus(UserModel? user) {
+    if (user == null) return AuthStatus.needsProfile;
     switch (user.onboardingStage) {
       case 'account':
         return AuthStatus.needsAccount;
@@ -63,48 +67,11 @@ class AuthController extends StateNotifier<AuthState> {
     }
   }
 
-  /// Called by the splash screen.
+  /// Called by the splash screen — the local equivalent of "restore session".
   Future<void> restoreSession() async {
-    final token = await _storage.accessToken;
-    if (token == null) {
-      state = state.copyWith(status: AuthStatus.unauthenticated);
-      return;
-    }
-    try {
-      final user = await _repo.me();
-      state = state.copyWith(status: _stageToStatus(user), user: user);
-    } catch (_) {
-      await _storage.clear();
-      state = state.copyWith(status: AuthStatus.unauthenticated);
-    }
+    final user = await _profileRepo.getUser();
+    state = state.copyWith(status: _stageToStatus(user), user: user);
   }
-
-  Future<bool> register(
-          {required String phone, required String password, String? email}) =>
-      _run(() async {
-        final result = await _repo.register(
-            phone: phone, password: password, email: email);
-        await _storage.saveTokens(
-          access: result.tokens!.accessToken,
-          refresh: result.tokens!.refreshToken,
-        );
-        state = state.copyWith(
-          status: _stageToStatus(result.user),
-          user: result.user,
-        );
-      });
-
-  Future<bool> login({required String identifier, required String password}) =>
-      _run(() async {
-        final result =
-            await _repo.login(identifier: identifier, password: password);
-        await _storage.saveTokens(
-          access: result.tokens!.accessToken,
-          refresh: result.tokens!.refreshToken,
-        );
-        state = state.copyWith(
-            status: _stageToStatus(result.user), user: result.user);
-      });
 
   Future<bool> saveProfile({
     required String fullName,
@@ -113,11 +80,14 @@ class AuthController extends StateNotifier<AuthState> {
     String? avatarUrl,
   }) =>
       _run(() async {
-        final user = await _repo.profileSetup(
-            fullName: fullName,
-            email: email,
-            phone: phone,
-            avatarUrl: avatarUrl);
+        final isFirstLaunch = (await _profileRepo.getUser()) == null;
+        final user = await _profileRepo.saveProfile(
+          fullName: fullName,
+          email: email,
+          phone: phone,
+          avatarPath: avatarUrl,
+        );
+        if (isFirstLaunch) await _categoryRepo.seedDefaults();
         state = state.copyWith(status: _stageToStatus(user), user: user);
       });
 
@@ -128,18 +98,24 @@ class AuthController extends StateNotifier<AuthState> {
     String type = 'cash',
   }) =>
       _run(() async {
-        await _repo.accountSetup(
-            name: name,
-            currency: currency,
-            initialBalance: initialBalance,
-            type: type);
-        state = state.copyWith(status: AuthStatus.authenticated);
+        await _accountRepo.create(
+            name: name, type: type, currency: currency, initialBalance: initialBalance);
+        await _profileRepo.completeAccountSetup(currency: currency);
+        final user = await _profileRepo.getUser();
+        state = state.copyWith(status: AuthStatus.authenticated, user: user);
       });
 
-  Future<void> logout() async {
-    await _storage.clear();
-    state = const AuthState(status: AuthStatus.unauthenticated);
+  /// Repurposed from "log out" — there's no account to sign back into, so
+  /// this is now a full local reset: wipe every table and send the user
+  /// back through onboarding. Used by the "Reset App Data" action.
+  Future<void> resetAppData() async {
+    await AppDatabase.instance.wipeAllData();
+    state = const AuthState(status: AuthStatus.needsProfile);
   }
+
+  /// Compatibility alias for screens not yet updated to the new name/copy —
+  /// see resetAppData().
+  Future<void> logout() => resetAppData();
 
   Future<bool> _run(Future<void> Function() action) async {
     state = state.copyWith(loading: true, clearError: true);

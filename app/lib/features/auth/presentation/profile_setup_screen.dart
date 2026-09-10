@@ -4,11 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/utils/local_files.dart';
 import '../../../core/utils/validators.dart';
 import '../../../shared/widgets/app_snackbar.dart';
 import '../../../shared/widgets/app_text_field.dart';
 import '../../../shared/widgets/primary_button.dart';
-import '../../settings/data/settings_repository.dart';
 import '../state/auth_controller.dart';
 
 /// Screen 5 — Profile Setup
@@ -58,12 +58,10 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
     if (_avatar != null) {
       setState(() => _uploadingAvatar = true);
       try {
-        avatarUrl = await ref
-            .read(settingsRepositoryProvider)
-            .uploadAvatar(_avatar!.path);
+        avatarUrl = await saveAvatarFile(_avatar!.path);
       } catch (e) {
         if (mounted) {
-          showAppSnack(context, 'Could not upload photo: $e', isError: true);
+          showAppSnack(context, 'Could not save photo: $e', isError: true);
         }
         return;
       } finally {
@@ -121,7 +119,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                         backgroundImage: _avatar != null
                             ? FileImage(_avatar!)
                             : ((auth.user?.avatarUrl.isNotEmpty ?? false)
-                                ? NetworkImage(auth.user!.avatarUrl)
+                                ? FileImage(File(auth.user!.avatarUrl))
                                     as ImageProvider
                                 : null),
                         child: (_avatar == null &&

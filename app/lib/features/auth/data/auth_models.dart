@@ -15,6 +15,9 @@ class UserModel {
   final String email;
   final String fullName;
   final String phone;
+  // Holds a local file path (not a URL) now that avatars are stored on
+  // device instead of uploaded — the field name stayed the same to avoid
+  // rippling a rename through every screen that reads it.
   final String avatarUrl;
   final bool isVerified;
   final String onboardingStage; // profile | account | done
@@ -35,42 +38,4 @@ class UserModel {
       themePreference: (settings['theme'] ?? 'system').toString(),
     );
   }
-}
-
-class AuthTokens {
-  const AuthTokens({required this.accessToken, required this.refreshToken});
-  final String accessToken;
-  final String refreshToken;
-
-  factory AuthTokens.fromJson(Map<String, dynamic> json) => AuthTokens(
-        accessToken: json['accessToken'].toString(),
-        refreshToken: json['refreshToken'].toString(),
-      );
-}
-
-class AccountModel {
-  const AccountModel({
-    required this.id,
-    required this.name,
-    required this.type,
-    required this.currency,
-    required this.currentBalance,
-    required this.icon,
-  });
-
-  final String id;
-  final String name;
-  final String type;
-  final String currency;
-  final double currentBalance;
-  final String icon;
-
-  factory AccountModel.fromJson(Map<String, dynamic> json) => AccountModel(
-        id: (json['_id'] ?? json['id'] ?? '').toString(),
-        name: (json['name'] ?? '').toString(),
-        type: (json['type'] ?? 'cash').toString(),
-        currency: (json['currency'] ?? 'PKR').toString(),
-        currentBalance: (json['currentBalance'] ?? 0).toDouble(),
-        icon: (json['icon'] ?? 'wallet').toString(),
-      );
 }

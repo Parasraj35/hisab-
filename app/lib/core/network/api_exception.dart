@@ -1,10 +1,15 @@
 import 'package:dio/dio.dart';
 
+/// User-facing error surfaced from the local data layer (validation,
+/// conflicts, not-found). Kept under its old name/shape — screens already
+/// catch these generically and display `e.toString()` — even though it no
+/// longer wraps a Dio/HTTP failure now that most repositories are
+/// local-only. `fromDio` stays only for the repositories api_client.dart
+/// still serves (settings/report) until Phase 5/6 finishes removing them.
 class ApiException implements Exception {
-  ApiException(this.message, {this.statusCode, this.fieldErrors = const {}});
+  ApiException(this.message, {this.fieldErrors = const {}});
 
   final String message;
-  final int? statusCode;
   final Map<String, String> fieldErrors;
 
   factory ApiException.fromDio(DioException e) {
@@ -13,25 +18,11 @@ class ApiException implements Exception {
         e.type == DioExceptionType.connectionError) {
       return ApiException('Cannot reach the server. Check your connection.');
     }
-
     final data = e.response?.data;
     if (data is Map) {
-      final errors = <String, String>{};
-      if (data['errors'] is List) {
-        for (final item in data['errors']) {
-          if (item is Map && item['field'] != null) {
-            errors[item['field'].toString()] = item['message'].toString();
-          }
-        }
-      }
-      return ApiException(
-        (data['message'] ?? 'Something went wrong').toString(),
-        statusCode: e.response?.statusCode,
-        fieldErrors: errors,
-      );
+      return ApiException((data['message'] ?? 'Something went wrong').toString());
     }
-    return ApiException('Something went wrong',
-        statusCode: e.response?.statusCode);
+    return ApiException('Something went wrong');
   }
 
   @override

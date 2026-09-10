@@ -8,7 +8,7 @@ import '../../../shared/widgets/app_dropdown.dart';
 import '../../../shared/widgets/app_snackbar.dart';
 import '../../../shared/widgets/app_text_field.dart';
 import '../../../shared/widgets/primary_button.dart';
-import '../data/auth_repository.dart';
+import '../../accounts/data/account_repository.dart';
 import '../state/auth_controller.dart';
 
 class _Currency {
@@ -77,7 +77,7 @@ class _AccountSetupScreenState extends ConsumerState<AccountSetupScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _addingAnother = true);
     try {
-      await ref.read(authRepositoryProvider).accountSetup(
+      await ref.read(accountRepositoryProvider).create(
             name: _name.text.trim(),
             currency: _currency.code,
             initialBalance: _parsedBalance,

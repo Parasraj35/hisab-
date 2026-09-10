@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/account_setup_screen.dart';
-import '../../features/auth/presentation/forgot_password_screen.dart';
-import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/profile_setup_screen.dart';
-import '../../features/auth/presentation/signup_screen.dart';
 import '../../features/accounts/presentation/accounts_screen.dart';
 import '../../features/dashboard/dashboard_screen.dart';
 import '../../features/accounts/presentation/account_detail_screen.dart';
@@ -45,11 +42,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     refreshListenable: refresh,
     routes: [
       GoRoute(path: '/', builder: (_, __) => const SplashScreen()),
-      GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
-      GoRoute(path: '/signup', builder: (_, __) => const SignupScreen()),
-      GoRoute(
-          path: '/forgot-password',
-          builder: (_, __) => const ForgotPasswordScreen()),
       GoRoute(
           path: '/profile-setup',
           builder: (_, __) => const ProfileSetupScreen()),
@@ -108,21 +100,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       if (status == AuthStatus.unknown) return loc == '/' ? null : '/';
 
       switch (status) {
-        case AuthStatus.unauthenticated:
-          const publicRoutes = {'/login', '/signup', '/forgot-password'};
-          return publicRoutes.contains(loc) ? null : '/login';
         case AuthStatus.needsProfile:
           return loc == '/profile-setup' ? null : '/profile-setup';
         case AuthStatus.needsAccount:
           return loc == '/account-setup' ? null : '/account-setup';
         case AuthStatus.authenticated:
-          const gatedRoutes = {
-            '/',
-            '/login',
-            '/signup',
-            '/profile-setup',
-            '/account-setup',
-          };
+          const gatedRoutes = {'/', '/profile-setup', '/account-setup'};
           return gatedRoutes.contains(loc) ? '/dashboard' : null;
         case AuthStatus.unknown:
           return null;

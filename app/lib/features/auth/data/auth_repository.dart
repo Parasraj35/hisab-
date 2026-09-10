@@ -1,86 +1,97 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/network/api_client.dart';
-import '../../../core/network/api_endpoints.dart';
+import '../../../core/local_db/app_database.dart';
 import 'auth_models.dart';
 
-final authRepositoryProvider = Provider<AuthRepository>(
-  (ref) => AuthRepository(ref.read(apiClientProvider)),
-);
+const _profileId = 'local';
 
-class AuthResult {
-  const AuthResult({required this.user, this.tokens});
-  final UserModel user;
-  final AuthTokens? tokens;
-}
+final profileRepositoryProvider =
+    Provider<ProfileRepository>((ref) => ProfileRepository());
 
-class AuthRepository {
-  AuthRepository(this._api);
-  final ApiClient _api;
-
-  Future<AuthResult> register({
-    required String phone,
-    required String password,
-    String? email,
-  }) async {
-    final res = await _api.post(ApiEndpoints.register, data: {
-      'phone': phone,
-      'password': password,
-      if (email != null && email.isNotEmpty) 'email': email,
-    });
-    final data = res['data'] as Map<String, dynamic>;
-    return AuthResult(
-      user: UserModel.fromJson(Map<String, dynamic>.from(data['user'])),
-      tokens: AuthTokens.fromJson(Map<String, dynamic>.from(data['tokens'])),
-    );
+/// Backs the single local "profile" row — there is no account to log into,
+/// so this replaces what used to be a server-authenticated user record.
+class ProfileRepository {
+  Future<UserModel?> getUser() async {
+    final db = await AppDatabase.instance.database;
+    final rows = await db.query('profile', where: 'id = ?', whereArgs: [_profileId]);
+    if (rows.isEmpty) return null;
+    return UserModel.fromJson(_toJson(rows.first));
   }
 
-  Future<AuthResult> login(
-      {required String identifier, required String password}) async {
-    final res = await _api.post(ApiEndpoints.login,
-        data: {'identifier': identifier, 'password': password});
-    final data = res['data'] as Map<String, dynamic>;
-    return AuthResult(
-      user: UserModel.fromJson(Map<String, dynamic>.from(data['user'])),
-      tokens: AuthTokens.fromJson(Map<String, dynamic>.from(data['tokens'])),
-    );
-  }
-
-  Future<UserModel> me() async {
-    final res = await _api.get(ApiEndpoints.me);
-    return UserModel.fromJson(Map<String, dynamic>.from(res['data']['user']));
-  }
-
-  Future<UserModel> profileSetup({
+  /// Called once, from Profile Setup — creates the row if this is the first
+  /// launch, or updates it if the user is re-running setup. Always advances
+  /// onboarding past the "profile" stage, mirroring the old
+  /// PATCH /auth/profile-setup behaviour.
+  Future<UserModel> saveProfile({
     required String fullName,
     String? email,
     String? phone,
-    String? avatarUrl,
+    String? avatarPath,
   }) async {
-    final res = await _api.patch(ApiEndpoints.profileSetup, data: {
-      'fullName': fullName,
-      if (email != null) 'email': email,
-      if (phone != null) 'phone': phone,
-      if (avatarUrl != null) 'avatarUrl': avatarUrl,
-    });
-    return UserModel.fromJson(Map<String, dynamic>.from(res['data']['user']));
+    final db = await AppDatabase.instance.database;
+    final now = DateTime.now().toUtc().toIso8601String();
+    final existing = await db.query('profile', where: 'id = ?', whereArgs: [_profileId]);
+
+    if (existing.isEmpty) {
+      await db.insert('profile', {
+        'id': _profileId,
+        'full_name': fullName,
+        'email': email ?? '',
+        'phone': phone ?? '',
+        'avatar_path': avatarPath ?? '',
+        'onboarding_stage': 'account',
+        'created_at': now,
+        'updated_at': now,
+      });
+    } else {
+      final row = existing.first;
+      await db.update(
+        'profile',
+        {
+          'full_name': fullName,
+          if (email != null) 'email': email,
+          if (phone != null) 'phone': phone,
+          if (avatarPath != null) 'avatar_path': avatarPath,
+          // Only the initial setup pass advances the stage — an edit made
+          // later (from the Profile screen) must not regress or re-advance it.
+          'onboarding_stage':
+              row['onboarding_stage'] == 'profile' ? 'account' : row['onboarding_stage'],
+          'updated_at': now,
+        },
+        where: 'id = ?',
+        whereArgs: [_profileId],
+      );
+    }
+
+    return (await getUser())!;
   }
 
-  Future<AccountModel> accountSetup({
-    required String name,
-    required String currency,
-    required double initialBalance,
-    String type = 'cash',
-  }) async {
-    final res = await _api.post(ApiEndpoints.accountSetup, data: {
-      'name': name,
-      'currency': currency,
-      'initialBalance': initialBalance,
-      'type': type,
-    });
-    return AccountModel.fromJson(
-        Map<String, dynamic>.from(res['data']['account']));
+  /// Called once, from Account Setup — marks onboarding complete and seeds
+  /// the currency chosen alongside the first account.
+  Future<void> completeAccountSetup({required String currency}) async {
+    final db = await AppDatabase.instance.database;
+    await db.update(
+      'profile',
+      {
+        'currency': currency,
+        'onboarding_stage': 'done',
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      },
+      where: 'id = ?',
+      whereArgs: [_profileId],
+    );
   }
 
-  Future<void> forgotPassword(String email) =>
-      _api.post(ApiEndpoints.forgotPassword, data: {'email': email});
+  Map<String, dynamic> _toJson(Map<String, dynamic> row) => {
+        '_id': row['id'],
+        'fullName': row['full_name'],
+        'email': row['email'],
+        'phone': row['phone'],
+        'avatarUrl': row['avatar_path'],
+        'isVerified': true,
+        'onboardingStage': row['onboarding_stage'],
+        'settings': {
+          'currency': row['currency'],
+          'theme': row['theme'],
+        },
+      };
 }

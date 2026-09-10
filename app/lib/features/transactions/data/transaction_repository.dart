@@ -1,10 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/network/api_client.dart';
-import '../../../core/network/api_endpoints.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:uuid/uuid.dart';
+import '../../../core/local_db/app_database.dart';
+import '../../../core/network/api_exception.dart';
+import '../../accounts/data/account_repository.dart';
 import 'transaction_model.dart';
 
-final transactionRepositoryProvider = Provider<TransactionRepository>(
-    (ref) => TransactionRepository(ref.read(apiClientProvider)));
+const _uuid = Uuid();
+
+final transactionRepositoryProvider =
+    Provider<TransactionRepository>((ref) => TransactionRepository());
 
 class TransactionQuery {
   const TransactionQuery({
@@ -74,21 +79,61 @@ class TransactionPage {
 }
 
 class TransactionRepository {
-  TransactionRepository(this._api);
-  final ApiClient _api;
-
   Future<TransactionPage> list(TransactionQuery query) async {
-    final res =
-        await _api.get(ApiEndpoints.transactions, query: query.toQuery());
-    final meta = Map<String, dynamic>.from(res['meta'] ?? {});
-    return TransactionPage(
-      items: (res['data'] as List)
-          .map((e) => TransactionItem.fromJson(Map<String, dynamic>.from(e)))
-          .toList(),
-      page: (meta['page'] ?? 1) as int,
-      totalPages: (meta['totalPages'] ?? 1) as int,
-      total: (meta['total'] ?? 0) as int,
+    final db = await AppDatabase.instance.database;
+    final where = <String>[];
+    final args = <Object?>[];
+
+    if (query.type != null) {
+      where.add('type = ?');
+      args.add(query.type);
+    }
+    if (query.accountId != null) {
+      where.add('(account_id = ? OR to_account_id = ?)');
+      args.addAll([query.accountId, query.accountId]);
+    }
+    if (query.categoryId != null) {
+      where.add('category_id = ?');
+      args.add(query.categoryId);
+    }
+    if (query.from != null) {
+      where.add('date >= ?');
+      args.add(_startOfDay(query.from!).toUtc().toIso8601String());
+    }
+    if (query.to != null) {
+      where.add('date <= ?');
+      args.add(_endOfDay(query.to!).toUtc().toIso8601String());
+    }
+    if (query.minAmount != null) {
+      where.add('amount >= ?');
+      args.add(query.minAmount);
+    }
+    if (query.maxAmount != null) {
+      where.add('amount <= ?');
+      args.add(query.maxAmount);
+    }
+    if (query.search != null && query.search!.isNotEmpty) {
+      where.add('note LIKE ?');
+      args.add('%${query.search}%');
+    }
+
+    final whereClause = where.isEmpty ? '' : 'WHERE ${where.join(' AND ')}';
+
+    final totalRows = await db
+        .rawQuery('SELECT COUNT(*) as c FROM transactions $whereClause', args);
+    final total = (totalRows.first['c'] as int?) ?? 0;
+
+    final offset = (query.page - 1) * query.limit;
+    final rows = await db.rawQuery(
+      'SELECT * FROM transactions $whereClause ORDER BY date DESC, created_at DESC LIMIT ? OFFSET ?',
+      [...args, query.limit, offset],
     );
+
+    final items = await _hydrate(db, rows);
+    final totalPages = total == 0 ? 1 : (total / query.limit).ceil();
+
+    return TransactionPage(
+        items: items, page: query.page, totalPages: totalPages, total: total);
   }
 
   Future<TransactionItem> create({
@@ -100,31 +145,178 @@ class TransactionRepository {
     required DateTime date,
     String note = '',
   }) async {
-    final res = await _api.post(ApiEndpoints.transactions, data: {
+    final db = await AppDatabase.instance.database;
+    await _assertExists(db, accountId, toAccountId, categoryId);
+
+    if (type == 'transfer') {
+      if (toAccountId == null) {
+        throw ApiException('Destination account is required for a transfer');
+      }
+      if (toAccountId == accountId) {
+        throw ApiException('Choose a different destination account');
+      }
+    } else if (categoryId == null) {
+      throw ApiException('Category is required');
+    }
+
+    final id = _uuid.v4();
+    final now = DateTime.now().toUtc().toIso8601String();
+    await db.insert('transactions', {
+      'id': id,
       'type': type,
       'amount': amount,
-      'account': accountId,
-      if (toAccountId != null) 'toAccount': toAccountId,
-      if (categoryId != null) 'category': categoryId,
-      'date': date.toIso8601String(),
+      'account_id': accountId,
+      'to_account_id': type == 'transfer' ? toAccountId : null,
+      'category_id': type == 'transfer' ? null : categoryId,
+      'date': date.toUtc().toIso8601String(),
       'note': note,
+      'transfer_group': type == 'transfer' ? _uuid.v4() : null,
+      'created_at': now,
+      'updated_at': now,
     });
-    return TransactionItem.fromJson(
-        Map<String, dynamic>.from(res['data']['transaction']));
+
+    await recomputeAccounts(db, [accountId, toAccountId]);
+    return getOne(id);
   }
 
   Future<TransactionItem> getOne(String id) async {
-    final res = await _api.get(ApiEndpoints.transaction(id));
-    return TransactionItem.fromJson(
-        Map<String, dynamic>.from(res['data']['transaction']));
+    final db = await AppDatabase.instance.database;
+    final rows = await db.query('transactions', where: 'id = ?', whereArgs: [id]);
+    if (rows.isEmpty) throw ApiException('Transaction not found');
+    final items = await _hydrate(db, rows);
+    return items.first;
   }
 
-  Future<TransactionItem> update(
-      String id, Map<String, dynamic> changes) async {
-    final res = await _api.patch(ApiEndpoints.transaction(id), data: changes);
-    return TransactionItem.fromJson(
-        Map<String, dynamic>.from(res['data']['transaction']));
+  Future<TransactionItem> update(String id, Map<String, dynamic> changes) async {
+    final db = await AppDatabase.instance.database;
+    final existing = await db.query('transactions', where: 'id = ?', whereArgs: [id]);
+    if (existing.isEmpty) throw ApiException('Transaction not found');
+    final row = existing.first;
+
+    final previousAccounts = [
+      row['account_id'] as String?,
+      row['to_account_id'] as String?,
+    ];
+
+    final newAccountId = (changes['account'] as String?) ?? row['account_id'] as String;
+    final newToAccountId =
+        changes.containsKey('toAccount') ? changes['toAccount'] as String? : row['to_account_id'] as String?;
+    final newCategoryId =
+        changes.containsKey('category') ? changes['category'] as String? : row['category_id'] as String?;
+
+    await _assertExists(db, newAccountId, newToAccountId, newCategoryId);
+
+    final columns = <String, dynamic>{
+      'updated_at': DateTime.now().toUtc().toIso8601String(),
+    };
+    if (changes.containsKey('amount')) columns['amount'] = changes['amount'];
+    if (changes.containsKey('account')) columns['account_id'] = changes['account'];
+    if (changes.containsKey('toAccount')) columns['to_account_id'] = changes['toAccount'];
+    if (changes.containsKey('category')) columns['category_id'] = changes['category'];
+    if (changes.containsKey('date')) {
+      columns['date'] = DateTime.parse(changes['date'] as String).toUtc().toIso8601String();
+    }
+    if (changes.containsKey('note')) columns['note'] = changes['note'];
+
+    await db.update('transactions', columns, where: 'id = ?', whereArgs: [id]);
+
+    // Recompute both the old and new accounts — an edit can move money
+    // between them (balance.service.js's recomputeAccounts call site).
+    await recomputeAccounts(db, [...previousAccounts, newAccountId, newToAccountId]);
+
+    return getOne(id);
   }
 
-  Future<void> remove(String id) => _api.delete(ApiEndpoints.transaction(id));
+  Future<void> remove(String id) async {
+    final db = await AppDatabase.instance.database;
+    final existing = await db.query('transactions', where: 'id = ?', whereArgs: [id]);
+    if (existing.isEmpty) throw ApiException('Transaction not found');
+    final row = existing.first;
+    final affected = [row['account_id'] as String?, row['to_account_id'] as String?];
+
+    await db.delete('transactions', where: 'id = ?', whereArgs: [id]);
+    await recomputeAccounts(db, affected);
+  }
+
+  Future<void> _assertExists(
+      Database db, String accountId, String? toAccountId, String? categoryId) async {
+    final ids = {accountId, if (toAccountId != null) toAccountId};
+    final placeholders = List.filled(ids.length, '?').join(',');
+    final accounts = await db
+        .rawQuery('SELECT id FROM accounts WHERE id IN ($placeholders)', ids.toList());
+    if (accounts.length != ids.length) {
+      throw ApiException('One of the selected accounts does not exist');
+    }
+    if (categoryId != null) {
+      final cats =
+          await db.query('categories', where: 'id = ?', whereArgs: [categoryId]);
+      if (cats.isEmpty) throw ApiException('Selected category does not exist');
+    }
+  }
+
+  Future<List<TransactionItem>> _hydrate(
+      Database db, List<Map<String, dynamic>> rows) async {
+    if (rows.isEmpty) return [];
+    final accountIds = <String>{};
+    final categoryIds = <String>{};
+    for (final r in rows) {
+      if (r['account_id'] != null) accountIds.add(r['account_id'] as String);
+      if (r['to_account_id'] != null) accountIds.add(r['to_account_id'] as String);
+      if (r['category_id'] != null) categoryIds.add(r['category_id'] as String);
+    }
+
+    final accounts = await _rowsById(db, 'accounts', accountIds);
+    final categories = await _rowsById(db, 'categories', categoryIds);
+
+    return rows.map((r) {
+      final accountRow = accounts[r['account_id']];
+      final toAccountRow = accounts[r['to_account_id']];
+      final categoryRow = categories[r['category_id']];
+      return TransactionItem.fromJson({
+        '_id': r['id'],
+        'type': r['type'],
+        'amount': r['amount'],
+        'date': r['date'],
+        'note': r['note'],
+        'account': accountRow == null ? null : _accountJson(accountRow),
+        'toAccount': toAccountRow == null ? null : _accountJson(toAccountRow),
+        'category': categoryRow == null ? null : _categoryJson(categoryRow),
+      });
+    }).toList();
+  }
+
+  Future<Map<String, Map<String, dynamic>>> _rowsById(
+      Database db, String table, Set<String> ids) async {
+    if (ids.isEmpty) return {};
+    final placeholders = List.filled(ids.length, '?').join(',');
+    final rows =
+        await db.rawQuery('SELECT * FROM $table WHERE id IN ($placeholders)', ids.toList());
+    return {for (final r in rows) r['id'] as String: r};
+  }
+
+  Map<String, dynamic> _accountJson(Map<String, dynamic> r) => {
+        '_id': r['id'],
+        'name': r['name'],
+        'type': r['type'],
+        'icon': r['icon'],
+        'color': r['color'],
+        'currency': r['currency'],
+        'initialBalance': r['initial_balance'],
+        'currentBalance': r['current_balance'],
+        'isDefault': r['is_default'] == 1,
+        'isArchived': r['is_archived'] == 1,
+      };
+
+  Map<String, dynamic> _categoryJson(Map<String, dynamic> r) => {
+        '_id': r['id'],
+        'name': r['name'],
+        'type': r['type'],
+        'icon': r['icon'],
+        'color': r['color'],
+        'isDefault': r['is_default'] == 1,
+      };
+
+  DateTime _startOfDay(DateTime d) => DateTime(d.year, d.month, d.day);
+  DateTime _endOfDay(DateTime d) =>
+      DateTime(d.year, d.month, d.day, 23, 59, 59, 999);
 }
