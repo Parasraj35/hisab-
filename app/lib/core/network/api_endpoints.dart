@@ -17,8 +17,6 @@ class ApiEndpoints {
   static const String login = '/auth/login';
   static const String refresh = '/auth/refresh';
   static const String me = '/auth/me';
-  static const String verifyOtp = '/auth/otp/verify';
-  static const String resendOtp = '/auth/otp/resend';
   static const String profileSetup = '/auth/profile-setup';
   static const String accountSetup = '/auth/account-setup';
   static const String forgotPassword = '/auth/forgot-password';

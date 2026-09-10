@@ -17,7 +17,7 @@ class UserModel {
   final String phone;
   final String avatarUrl;
   final bool isVerified;
-  final String onboardingStage; // otp | profile | account | done
+  final String onboardingStage; // profile | account | done
   final String currency;
   final String themePreference;
 
@@ -30,7 +30,7 @@ class UserModel {
       phone: (json['phone'] ?? '').toString(),
       avatarUrl: (json['avatarUrl'] ?? '').toString(),
       isVerified: json['isVerified'] == true,
-      onboardingStage: (json['onboardingStage'] ?? 'otp').toString(),
+      onboardingStage: (json['onboardingStage'] ?? 'profile').toString(),
       currency: (settings['currency'] ?? 'PKR').toString(),
       themePreference: (settings['theme'] ?? 'system').toString(),
     );

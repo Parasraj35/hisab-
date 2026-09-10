@@ -1,3 +1,5 @@
+import 'package:flutter/widgets.dart';
+
 class Validators {
   Validators._();
 
@@ -11,20 +13,18 @@ class Validators {
     return ok ? null : 'Enter a valid email address';
   }
 
-  static String? emailOrPhone(String? v) {
-    if (v == null || v.trim().isEmpty) return 'Email or phone is required';
-    final value = v.trim();
-    final isEmail =
-        RegExp(r'^[\w\.\-\+]+@([\w\-]+\.)+[\w\-]{2,}$').hasMatch(value);
-    final isPhone = RegExp(r'^\+?[0-9\s\-]{7,15}$').hasMatch(value);
-    return (isEmail || isPhone) ? null : 'Enter a valid email or phone number';
-  }
-
   static String? password(String? v) {
     if (v == null || v.isEmpty) return 'Password is required';
     if (v.length < 8) return 'Use at least 8 characters';
     return null;
   }
+
+  static String? Function(String?) confirmPassword(
+          TextEditingController original) =>
+      (v) {
+        if (v == null || v.isEmpty) return 'Confirm your password';
+        return v == original.text ? null : 'Passwords do not match';
+      };
 
   static String? phone(String? v) {
     if (v == null || v.trim().isEmpty) return 'Phone number is required';

@@ -69,11 +69,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     style: theme.textTheme.bodyMedium),
                 const SizedBox(height: AppSpacing.xxxl),
                 AppTextField(
-                  label: 'Email or Phone',
+                  label: 'Phone Number',
                   controller: _identifier,
-                  hint: 'example@domain.com',
-                  keyboardType: TextInputType.emailAddress,
-                  validator: Validators.emailOrPhone,
+                  hint: '+92 300 1234567',
+                  keyboardType: TextInputType.phone,
+                  validator: Validators.phone,
                 ),
                 const SizedBox(height: AppSpacing.xl),
                 AppTextField(

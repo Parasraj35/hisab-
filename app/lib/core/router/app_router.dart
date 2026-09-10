@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/account_setup_screen.dart';
 import '../../features/auth/presentation/forgot_password_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
-import '../../features/auth/presentation/otp_screen.dart';
 import '../../features/auth/presentation/profile_setup_screen.dart';
 import '../../features/auth/presentation/signup_screen.dart';
 import '../../features/accounts/presentation/accounts_screen.dart';
@@ -51,7 +50,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
           path: '/forgot-password',
           builder: (_, __) => const ForgotPasswordScreen()),
-      GoRoute(path: '/verify-otp', builder: (_, __) => const OtpScreen()),
       GoRoute(
           path: '/profile-setup',
           builder: (_, __) => const ProfileSetupScreen()),
@@ -113,8 +111,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         case AuthStatus.unauthenticated:
           const publicRoutes = {'/login', '/signup', '/forgot-password'};
           return publicRoutes.contains(loc) ? null : '/login';
-        case AuthStatus.needsOtp:
-          return loc == '/verify-otp' ? null : '/verify-otp';
         case AuthStatus.needsProfile:
           return loc == '/profile-setup' ? null : '/profile-setup';
         case AuthStatus.needsAccount:
@@ -124,7 +120,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             '/',
             '/login',
             '/signup',
-            '/verify-otp',
             '/profile-setup',
             '/account-setup',
           };

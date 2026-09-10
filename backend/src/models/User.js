@@ -22,16 +22,19 @@ const settingsSchema = new mongoose.Schema(
 const userSchema = new mongoose.Schema(
   {
     fullName: { type: String, trim: true, default: '' },
-    email: { type: String, required: true, lowercase: true, trim: true, unique: true },
-    phone: { type: String, trim: true, default: '' },
+    // No `default: ''` — sparse only excludes truly-absent values from the
+    // unique index, so an empty-string default would collide across every
+    // phone-only signup the moment a second one landed.
+    email: { type: String, lowercase: true, trim: true, unique: true, sparse: true },
+    phone: { type: String, trim: true, required: true, unique: true, sparse: true },
     password: { type: String, required: true, select: false, minlength: 8 },
     avatarUrl: { type: String, default: '' },
     pinHash: { type: String, select: false, default: null },
-    isVerified: { type: Boolean, default: false },
+    isVerified: { type: Boolean, default: true },
     onboardingStage: {
       type: String,
-      enum: ['otp', 'profile', 'account', 'done'],
-      default: 'otp',
+      enum: ['profile', 'account', 'done'],
+      default: 'profile',
     },
     settings: { type: settingsSchema, default: () => ({}) },
     lastLoginAt: { type: Date },

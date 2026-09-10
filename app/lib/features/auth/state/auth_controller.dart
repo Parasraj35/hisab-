@@ -7,7 +7,6 @@ import '../data/auth_repository.dart';
 enum AuthStatus {
   unknown,
   unauthenticated,
-  needsOtp,
   needsProfile,
   needsAccount,
   authenticated
@@ -19,21 +18,18 @@ class AuthState {
     this.user,
     this.loading = false,
     this.error,
-    this.devOtpCode,
   });
 
   final AuthStatus status;
   final UserModel? user;
   final bool loading;
   final String? error;
-  final String? devOtpCode;
 
   AuthState copyWith({
     AuthStatus? status,
     UserModel? user,
     bool? loading,
     String? error,
-    String? devOtpCode,
     bool clearError = false,
   }) =>
       AuthState(
@@ -41,7 +37,6 @@ class AuthState {
         user: user ?? this.user,
         loading: loading ?? this.loading,
         error: clearError ? null : (error ?? this.error),
-        devOtpCode: devOtpCode ?? this.devOtpCode,
       );
 }
 
@@ -58,16 +53,13 @@ class AuthController extends StateNotifier<AuthState> {
   final TokenStorage _storage;
 
   AuthStatus _stageToStatus(UserModel user) {
-    if (!user.isVerified) return AuthStatus.needsOtp;
     switch (user.onboardingStage) {
-      case 'profile':
-        return AuthStatus.needsProfile;
       case 'account':
         return AuthStatus.needsAccount;
       case 'done':
         return AuthStatus.authenticated;
       default:
-        return AuthStatus.needsOtp;
+        return AuthStatus.needsProfile;
     }
   }
 
@@ -88,18 +80,17 @@ class AuthController extends StateNotifier<AuthState> {
   }
 
   Future<bool> register(
-          {required String email, required String password, String? phone}) =>
+          {required String phone, required String password, String? email}) =>
       _run(() async {
         final result = await _repo.register(
-            email: email, password: password, phone: phone);
+            phone: phone, password: password, email: email);
         await _storage.saveTokens(
           access: result.tokens!.accessToken,
           refresh: result.tokens!.refreshToken,
         );
         state = state.copyWith(
-          status: AuthStatus.needsOtp,
+          status: _stageToStatus(result.user),
           user: result.user,
-          devOtpCode: result.devOtpCode,
         );
       });
 
@@ -114,22 +105,6 @@ class AuthController extends StateNotifier<AuthState> {
         state = state.copyWith(
             status: _stageToStatus(result.user), user: result.user);
       });
-
-  Future<bool> verifyOtp(String code) => _run(() async {
-        final user = await _repo.verifyOtp(code);
-        state = state.copyWith(status: _stageToStatus(user), user: user);
-      });
-
-  Future<String?> resendOtp() async {
-    try {
-      final code = await _repo.resendOtp();
-      state = state.copyWith(devOtpCode: code, clearError: true);
-      return code;
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
-      return null;
-    }
-  }
 
   Future<bool> saveProfile({
     required String fullName,

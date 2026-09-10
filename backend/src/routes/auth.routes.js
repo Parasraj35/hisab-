@@ -14,8 +14,6 @@ router.post('/reset-password', authLimiter, c.resetPassword);
 
 router.use(protect);
 router.get('/me', c.me);
-router.post('/otp/resend', otpLimiter, c.resendOtp);
-router.post('/otp/verify', validate(c.otpSchema), c.verifyOtp);
 router.patch('/profile-setup', validate(c.profileSchema), c.profileSetup);
 router.post('/account-setup', validate(c.setupAccountSchema), c.accountSetup);
 

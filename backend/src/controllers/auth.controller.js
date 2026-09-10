@@ -10,17 +10,15 @@ import { issueOtp, consumeOtp } from '../services/otp.service.js';
 import { DEFAULT_CATEGORIES, defaultsForAccountType } from '../utils/defaults.js';
 
 export const registerSchema = z.object({
-  email: z.string().email('Enter a valid email'),
+  phone: z.string().min(7, 'Enter a valid phone number'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
-  phone: z.string().min(7, 'Enter a valid phone number').optional().or(z.literal('')),
+  email: z.string().email('Enter a valid email').optional().or(z.literal('')),
 });
 
 export const loginSchema = z.object({
-  identifier: z.string().min(3, 'Enter your email or phone'),
+  identifier: z.string().min(3, 'Enter your phone number'),
   password: z.string().min(1, 'Password is required'),
 });
-
-export const otpSchema = z.object({ code: z.string().length(6, 'Enter the 6 digit code') });
 
 export const profileSchema = z.object({
   fullName: z.string().min(2, 'Enter your full name'),
@@ -45,18 +43,17 @@ async function seedDefaultCategories(userId) {
 
 /** POST /api/v1/auth/register */
 export const register = catchAsync(async (req, res) => {
-  const { email, password, phone } = req.body;
+  const { phone, password, email } = req.body;
 
-  const existing = await User.findOne({ email });
-  if (existing) throw ApiError.conflict('An account with this email already exists');
+  const existing = await User.findOne({ phone });
+  if (existing) throw ApiError.conflict('An account with this phone number already exists');
 
-  const user = await User.create({ email, password, phone: phone || '' });
+  const user = await User.create({ phone, password, ...(email ? { email } : {}) });
   await seedDefaultCategories(user._id);
 
-  const otp = await issueOtp(user, 'verify_account');
   const tokens = issueTokens(user);
 
-  return created(res, { user, tokens, otp }, 'Account created. Verify the code we sent you.');
+  return created(res, { user, tokens }, 'Account created');
 });
 
 /** POST /api/v1/auth/login */
@@ -76,23 +73,6 @@ export const login = catchAsync(async (req, res) => {
 
   const tokens = issueTokens(user);
   return ok(res, { user: user.toJSON(), tokens }, 'Welcome back');
-});
-
-/** POST /api/v1/auth/otp/resend */
-export const resendOtp = catchAsync(async (req, res) => {
-  const otp = await issueOtp(req.user, 'verify_account');
-  return ok(res, { otp }, 'Verification code sent');
-});
-
-/** POST /api/v1/auth/otp/verify */
-export const verifyOtp = catchAsync(async (req, res) => {
-  await consumeOtp(req.user, req.body.code, 'verify_account');
-
-  req.user.isVerified = true;
-  if (req.user.onboardingStage === 'otp') req.user.onboardingStage = 'profile';
-  await req.user.save();
-
-  return ok(res, { user: req.user.toJSON() }, 'Account verified');
 });
 
 /** PATCH /api/v1/auth/profile-setup */

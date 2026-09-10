@@ -8,10 +8,9 @@ final authRepositoryProvider = Provider<AuthRepository>(
 );
 
 class AuthResult {
-  const AuthResult({required this.user, this.tokens, this.devOtpCode});
+  const AuthResult({required this.user, this.tokens});
   final UserModel user;
   final AuthTokens? tokens;
-  final String? devOtpCode;
 }
 
 class AuthRepository {
@@ -19,20 +18,19 @@ class AuthRepository {
   final ApiClient _api;
 
   Future<AuthResult> register({
-    required String email,
+    required String phone,
     required String password,
-    String? phone,
+    String? email,
   }) async {
     final res = await _api.post(ApiEndpoints.register, data: {
-      'email': email,
+      'phone': phone,
       'password': password,
-      if (phone != null) 'phone': phone
+      if (email != null && email.isNotEmpty) 'email': email,
     });
     final data = res['data'] as Map<String, dynamic>;
     return AuthResult(
       user: UserModel.fromJson(Map<String, dynamic>.from(data['user'])),
       tokens: AuthTokens.fromJson(Map<String, dynamic>.from(data['tokens'])),
-      devOtpCode: (data['otp'] ?? {})['devCode']?.toString(),
     );
   }
 
@@ -50,16 +48,6 @@ class AuthRepository {
   Future<UserModel> me() async {
     final res = await _api.get(ApiEndpoints.me);
     return UserModel.fromJson(Map<String, dynamic>.from(res['data']['user']));
-  }
-
-  Future<UserModel> verifyOtp(String code) async {
-    final res = await _api.post(ApiEndpoints.verifyOtp, data: {'code': code});
-    return UserModel.fromJson(Map<String, dynamic>.from(res['data']['user']));
-  }
-
-  Future<String?> resendOtp() async {
-    final res = await _api.post(ApiEndpoints.resendOtp);
-    return (res['data']['otp'] ?? {})['devCode']?.toString();
   }
 
   Future<UserModel> profileSetup({

@@ -19,16 +19,17 @@ class SignupScreen extends ConsumerStatefulWidget {
 
 class _SignupScreenState extends ConsumerState<SignupScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _email = TextEditingController();
   final _phone = TextEditingController();
   final _password = TextEditingController();
+  final _confirmPassword = TextEditingController();
   bool _obscure = true;
+  bool _obscureConfirm = true;
 
   @override
   void dispose() {
-    _email.dispose();
     _phone.dispose();
     _password.dispose();
+    _confirmPassword.dispose();
     super.dispose();
   }
 
@@ -37,9 +38,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     FocusScope.of(context).unfocus();
 
     final ok = await ref.read(authControllerProvider.notifier).register(
-          email: _email.text.trim(),
-          password: _password.text,
           phone: _phone.text.trim(),
+          password: _password.text,
         );
 
     if (!mounted) return;
@@ -80,15 +80,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     style: theme.textTheme.bodyMedium),
                 const SizedBox(height: AppSpacing.xxxl),
                 AppTextField(
-                  label: 'Email',
-                  controller: _email,
-                  hint: 'example@domain.com',
-                  keyboardType: TextInputType.emailAddress,
-                  validator: Validators.email,
-                ),
-                const SizedBox(height: AppSpacing.xl),
-                AppTextField(
-                  label: 'Phone',
+                  label: 'Phone Number',
                   controller: _phone,
                   hint: '+92 300 1234567',
                   keyboardType: TextInputType.phone,
@@ -111,6 +103,31 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     ),
                     onPressed: () => setState(() => _obscure = !_obscure),
                   ),
+                ),
+                const SizedBox(height: AppSpacing.xl),
+                AppTextField(
+                  label: 'Confirm Password',
+                  controller: _confirmPassword,
+                  hint: 'Re-enter your password',
+                  obscureText: _obscureConfirm,
+                  validator: Validators.confirmPassword(_password),
+                  suffix: IconButton(
+                    icon: Icon(
+                      _obscureConfirm
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                      size: 20,
+                      color: context.cTextSecondary,
+                    ),
+                    onPressed: () =>
+                        setState(() => _obscureConfirm = !_obscureConfirm),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Text(
+                  "Don't forget your password — write it down somewhere safe.",
+                  style: theme.textTheme.bodySmall
+                      ?.copyWith(color: AppColors.warning),
                 ),
                 const SizedBox(height: AppSpacing.xxl),
                 PrimaryButton(
