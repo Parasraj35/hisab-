@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'ad_consent_manager.dart';
 
 /// Loads a Google AdMob App Open ad and shows it once it's ready — used
 /// once per app launch, triggered a couple of seconds after the Dashboard
@@ -41,9 +42,15 @@ class AppOpenAdManager {
       DateTime.now().difference(_loadTime!) < _adMaxAge;
 
   /// Loads an ad and shows it automatically once it finishes — a no-op if
-  /// one was already shown this app launch.
-  void loadAndShowWhenReady() {
+  /// one was already shown this app launch. Gathers UMP consent first
+  /// (required before requesting ads for EU/UK/EEA users — a no-op for
+  /// everyone else) and bails out entirely if the user hasn't consented.
+  Future<void> loadAndShowWhenReady() async {
     if (_shownThisLaunch) return;
+    await AdConsentManager.instance.gatherConsent();
+    if (!await AdConsentManager.instance.canRequestAds()) return;
+    if (_shownThisLaunch) return; // re-check: time passed during consent UI
+
     MobileAds.instance.initialize();
     AppOpenAd.load(
       adUnitId: _adUnitId,

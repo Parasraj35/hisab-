@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'ad_consent_manager.dart';
 
 /// Loads a Google AdMob Interstitial ad and shows it at natural "revenue
 /// moments": every 3rd transaction/transfer save (see maybeShow), and every
@@ -36,10 +37,16 @@ class InterstitialAdManager {
   }
 
   /// Warms up the next ad so it's ready by the time maybeShow()/
-  /// showMandatory() are actually due to display one. Safe to call repeatedly.
-  void preload() {
+  /// showMandatory() are actually due to display one. Safe to call
+  /// repeatedly. Gathers UMP consent first (see AdConsentManager) and
+  /// bails out entirely if the user hasn't consented.
+  Future<void> preload() async {
     final unitId = _adUnitId;
     if (unitId == null || _ad != null || _loading) return;
+
+    await AdConsentManager.instance.gatherConsent();
+    if (!await AdConsentManager.instance.canRequestAds()) return;
+    if (_ad != null || _loading) return; // re-check: time passed during consent UI
 
     _loading = true;
     MobileAds.instance.initialize();
@@ -81,7 +88,7 @@ class InterstitialAdManager {
 
   Future<void> _show() async {
     if (_isShowingAd || _ad == null) {
-      preload();
+      unawaited(preload());
       return;
     }
 
@@ -94,13 +101,13 @@ class InterstitialAdManager {
       onAdFailedToShowFullScreenContent: (failedAd, _) {
         _isShowingAd = false;
         failedAd.dispose();
-        preload();
+        unawaited(preload());
         if (!completer.isCompleted) completer.complete();
       },
       onAdDismissedFullScreenContent: (dismissedAd) {
         _isShowingAd = false;
         dismissedAd.dispose();
-        preload();
+        unawaited(preload());
         if (!completer.isCompleted) completer.complete();
       },
     );
