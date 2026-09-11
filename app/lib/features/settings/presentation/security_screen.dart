@@ -115,17 +115,8 @@ class SecurityScreen extends ConsumerWidget {
                   title: 'Change Password',
                   icon: Icons.key_outlined,
                   iconColor: AppColors.forest,
+                  showDivider: status.hasPin,
                   onTap: () => _showPasswordSheet(context, ref),
-                ),
-                SettingsTile(
-                  title: 'Two Step Verification',
-                  subtitle: 'Require a code at login',
-                  icon: Icons.verified_user_outlined,
-                  iconColor: const Color(0xFF14B8A6),
-                  trailing: Switch(
-                    value: status.twoStepVerification,
-                    onChanged: (v) => patch({'twoStepVerification': v}),
-                  ),
                 ),
                 if (status.hasPin)
                   SettingsTile(
@@ -149,7 +140,7 @@ class SecurityScreen extends ConsumerWidget {
                 side: const BorderSide(color: AppColors.expense),
               ),
               icon: const Icon(Icons.logout_rounded, size: 18),
-              label: const Text('Logout from All Devices',
+              label: const Text('Log Out',
                   style: TextStyle(fontWeight: FontWeight.w600)),
             ),
           ],
@@ -246,7 +237,7 @@ class SecurityScreen extends ConsumerWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Log out?'),
-        content: const Text('You will need to sign in again on this device.'),
+        content: const Text('You will need to sign in again.'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(dialogContext),

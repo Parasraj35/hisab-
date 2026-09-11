@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/ads/app_open_ad_manager.dart';
+import '../../core/ads/interstitial_ad_manager.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/clay.dart';
@@ -58,6 +60,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     // stall the splash-to-dashboard transition if triggered any earlier.
     Future.delayed(const Duration(seconds: 2),
         () => AppOpenAdManager.instance.loadAndShowWhenReady());
+    // Warmed up here so it's ready the first time a transaction is saved,
+    // rather than the user waiting on a cold ad load at that moment.
+    InterstitialAdManager.instance.preload();
   }
 
   Future<void> _refresh() async {
@@ -101,7 +106,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             radius: 16,
             backgroundColor: Colors.white.withValues(alpha: 0.16),
             backgroundImage: (user?.avatarUrl.isNotEmpty ?? false)
-                ? NetworkImage(user!.avatarUrl)
+                ? FileImage(File(user!.avatarUrl)) as ImageProvider
                 : null,
             child: (user?.avatarUrl.isNotEmpty ?? false)
                 ? null
@@ -115,7 +120,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
           onPressed: () => context.push('/profile'),
         ),
-        title: Text(firstName != null ? '$greeting, $firstName' : greeting),
+        title: Text(
+          firstName != null ? '$greeting, $firstName' : greeting,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.search_rounded),
@@ -399,13 +408,17 @@ class _SectionTitle extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w600,
-            color: context.cTextPrimary,
-            letterSpacing: -0.2,
+        Expanded(
+          child: Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+              color: context.cTextPrimary,
+              letterSpacing: -0.2,
+            ),
           ),
         ),
         if (action != null)
@@ -695,7 +708,7 @@ class _BalanceHeader extends StatelessWidget {
                 // fading and sliding in piece by piece.
                 hidden
                     ? const Text(
-                        '••••••',
+                        '******',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 30,

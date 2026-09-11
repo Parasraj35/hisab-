@@ -175,7 +175,7 @@ class AccountRepository {
 /// balance.service.js's recomputeAccountBalance, down to the exact
 /// inflow/outflow split (income-on-this-account and transfer-in count as
 /// inflow; expense-on-this-account and transfer-out count as outflow).
-Future<void> recomputeAccountBalance(Database db, String accountId) async {
+Future<void> recomputeAccountBalance(DatabaseExecutor db, String accountId) async {
   final row = await db.query('accounts', where: 'id = ?', whereArgs: [accountId]);
   if (row.isEmpty) return;
   final initialBalance = (row.first['initial_balance'] as num).toDouble();
@@ -205,10 +205,25 @@ Future<void> recomputeAccountBalance(Database db, String accountId) async {
 /// Recomputes several accounts at once — a direct port of
 /// balance.service.js's recomputeAccounts (dedupes and skips nulls, the
 /// same way it did when accountIds came from a transaction's
-/// account/toAccount pair).
-Future<void> recomputeAccounts(Database db, List<String?> accountIds) async {
+/// account/toAccount pair) — then enforces that none of them went negative.
+/// Call this from inside a `db.transaction()` block so a rejection rolls
+/// back the transaction row that caused it, not just the balance update.
+Future<void> recomputeAccounts(DatabaseExecutor db, List<String?> accountIds) async {
   final unique = {...accountIds.whereType<String>()};
   for (final id in unique) {
     await recomputeAccountBalance(db, id);
+  }
+
+  for (final id in unique) {
+    final rows = await db.query('accounts', where: 'id = ?', whereArgs: [id]);
+    if (rows.isEmpty) continue;
+    final balance = (rows.first['current_balance'] as num).toDouble();
+    if (balance < 0) {
+      final name = rows.first['name'] as String? ?? 'This account';
+      throw ApiException(
+        '$name doesn\'t have enough balance for this '
+        '(it would go to ${balance.toStringAsFixed(2)}).',
+      );
+    }
   }
 }

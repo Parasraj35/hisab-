@@ -25,26 +25,41 @@ class AppDatabase {
     final path = p.join(dir, 'hisab.db');
     return openDatabase(
       path,
-      version: 1,
+      version: 2,
       onConfigure: (db) => db.execute('PRAGMA foreign_keys = ON'),
       onCreate: (db, version) async {
         final batch = db.batch();
         _createSchema(batch);
         await batch.commit(noResult: true);
       },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          // Login/signup came back after being removed — the local profile
+          // row now needs a password to check and a flag for whether this
+          // device is currently "logged in" (there's no server session to
+          // hold that state, so it lives right on the row).
+          await db.execute(
+              "ALTER TABLE profile ADD COLUMN password_hash TEXT NOT NULL DEFAULT ''");
+          await db.execute(
+              'ALTER TABLE profile ADD COLUMN is_logged_in INTEGER NOT NULL DEFAULT 0');
+        }
+      },
     );
   }
 
   void _createSchema(Batch b) {
-    // ---- profile — single row, fixed id 'local'. Mirrors User.js minus
-    // everything auth-related (no password/JWT — there's nothing to log
-    // into on a fully local install).
+    // ---- profile — single row, fixed id 'local'. Mirrors User.js, with
+    // password_hash/is_logged_in standing in for what used to be
+    // password+JWT — login is now just "does this device know the
+    // password", not a server session.
     b.execute('''
       CREATE TABLE profile (
         id TEXT PRIMARY KEY,
         full_name TEXT NOT NULL DEFAULT '',
         email TEXT NOT NULL DEFAULT '',
         phone TEXT NOT NULL DEFAULT '',
+        password_hash TEXT NOT NULL DEFAULT '',
+        is_logged_in INTEGER NOT NULL DEFAULT 0,
         avatar_path TEXT NOT NULL DEFAULT '',
         currency TEXT NOT NULL DEFAULT 'PKR',
         theme TEXT NOT NULL DEFAULT 'system',

@@ -2,16 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../core/utils/local_files.dart';
 import '../../../core/utils/validators.dart';
 import '../../../shared/widgets/app_snackbar.dart';
 import '../../../shared/widgets/app_text_field.dart';
 import '../../../shared/widgets/primary_button.dart';
 import '../../../shared/widgets/settings_tile.dart';
 import '../../auth/state/auth_controller.dart';
-import '../data/settings_repository.dart';
 
 /// Screen 22 — Profile
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -31,11 +32,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     setState(() => _uploadingAvatar = true);
     try {
-      final repo = ref.read(settingsRepositoryProvider);
-      final avatarUrl = await repo.uploadAvatar(picked.path);
-      await repo.updateProfile({'avatarUrl': avatarUrl});
-      await ref.read(authControllerProvider.notifier).restoreSession();
-      if (mounted) showAppSnack(context, 'Photo updated');
+      final user = ref.read(authControllerProvider).user;
+      final avatarPath = await saveAvatarFile(picked.path);
+      final ok = await ref.read(authControllerProvider.notifier).saveProfile(
+            fullName: user?.fullName ?? '',
+            email: user?.email,
+            phone: user?.phone,
+            avatarUrl: avatarPath,
+          );
+      if (mounted && ok) showAppSnack(context, 'Photo updated');
     } catch (e) {
       if (mounted) {
         showAppSnack(context, 'Could not upload photo: $e', isError: true);
@@ -70,8 +75,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   CircleAvatar(
                     radius: 32,
                     backgroundColor: AppColors.forest.withValues(alpha: 0.10),
-                    backgroundImage:
-                        hasPhoto ? NetworkImage(user!.avatarUrl) : null,
+                    backgroundImage: hasPhoto
+                        ? FileImage(File(user!.avatarUrl)) as ImageProvider
+                        : null,
                     child: hasPhoto
                         ? null
                         : Text(
@@ -140,23 +146,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 onTap: () => _showEditSheet(context, ref),
               ),
               SettingsTile(
-                title: 'Preferences',
-                icon: Icons.tune_rounded,
-                iconColor: const Color(0xFFA855F7),
-                onTap: () => context.push('/settings'),
-              ),
-              SettingsTile(
                 title: 'Security',
                 icon: Icons.shield_outlined,
                 iconColor: AppColors.expense,
-                onTap: () => context.push('/security'),
-              ),
-              SettingsTile(
-                title: 'Backup & Restore',
-                icon: Icons.cloud_outlined,
-                iconColor: const Color(0xFF6366F1),
                 showDivider: false,
-                onTap: () => context.push('/backup'),
+                onTap: () => context.push('/security'),
               ),
             ],
           ),
@@ -259,15 +253,21 @@ class _EditProfileSheetState extends ConsumerState<_EditProfileSheet> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _saving = true);
     try {
-      await ref.read(settingsRepositoryProvider).updateProfile({
-        'fullName': _fullName.text.trim(),
-        'phone': _phone.text.trim(),
-      });
-      // Pull the fresh user through the auth controller so every screen updates.
-      await ref.read(authControllerProvider.notifier).restoreSession();
-      if (mounted) {
+      final user = ref.read(authControllerProvider).user;
+      final ok = await ref.read(authControllerProvider.notifier).saveProfile(
+            fullName: _fullName.text.trim(),
+            email: user?.email,
+            phone: _phone.text.trim(),
+            avatarUrl: user?.avatarUrl,
+          );
+      if (!mounted) return;
+      if (ok) {
         Navigator.pop(context);
         showAppSnack(context, 'Profile updated');
+      } else {
+        showAppSnack(
+            context, ref.read(authControllerProvider).error ?? 'Could not save',
+            isError: true);
       }
     } catch (e) {
       if (mounted) showAppSnack(context, e.toString(), isError: true);

@@ -15,6 +15,13 @@ class AppOpenAdManager {
   static const _androidAdUnitId = 'ca-app-pub-2955087757761518/7752697582';
   static const _iosAdUnitId = 'ca-app-pub-2955087757761518/5280623084';
 
+  // Google's own published test units (safe to hardcode — not secrets).
+  // Debug/profile builds serve these instead of the real ones so testing
+  // this app doesn't rack up invalid-traffic clicks against the real
+  // AdMob inventory; release builds are unaffected.
+  static const _androidTestAdUnitId = 'ca-app-pub-3940256099942544/9257395921';
+  static const _iosTestAdUnitId = 'ca-app-pub-3940256099942544/5575463023';
+
   static const _adMaxAge = Duration(hours: 4);
 
   AppOpenAd? _ad;
@@ -22,9 +29,11 @@ class AppOpenAdManager {
   bool _shownThisLaunch = false;
   DateTime? _loadTime;
 
-  String get _adUnitId => defaultTargetPlatform == TargetPlatform.iOS
-      ? _iosAdUnitId
-      : _androidAdUnitId;
+  String get _adUnitId {
+    final isIOS = defaultTargetPlatform == TargetPlatform.iOS;
+    if (kReleaseMode) return isIOS ? _iosAdUnitId : _androidAdUnitId;
+    return isIOS ? _iosTestAdUnitId : _androidTestAdUnitId;
+  }
 
   bool get _isAdAvailable =>
       _ad != null &&

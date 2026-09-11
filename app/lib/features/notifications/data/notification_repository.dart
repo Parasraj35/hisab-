@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/network/api_client.dart';
-import '../../../core/network/api_endpoints.dart';
+import '../../../core/local_db/app_database.dart';
 
 class AppNotification {
   const AppNotification({
@@ -32,26 +31,51 @@ class AppNotification {
       );
 }
 
-final notificationRepositoryProvider = Provider<NotificationRepository>(
-    (ref) => NotificationRepository(ref.read(apiClientProvider)));
+final notificationRepositoryProvider =
+    Provider<NotificationRepository>((ref) => NotificationRepository());
 
 class NotificationRepository {
-  NotificationRepository(this._api);
-  final ApiClient _api;
-
   Future<List<AppNotification>> list() async {
-    final res =
-        await _api.get(ApiEndpoints.notifications, query: {'limit': 50});
-    return (res['data'] as List)
-        .map((e) => AppNotification.fromJson(Map<String, dynamic>.from(e)))
-        .toList();
+    final db = await AppDatabase.instance.database;
+    final rows = await db.query('notifications', orderBy: 'created_at DESC', limit: 50);
+    return rows.map((r) => AppNotification.fromJson(_toJson(r))).toList();
   }
 
-  Future<void> markRead(String id) =>
-      _api.patch(ApiEndpoints.notificationRead(id));
-  Future<void> markAllRead() => _api.patch(ApiEndpoints.notificationsReadAll);
-  Future<void> remove(String id) => _api.delete(ApiEndpoints.notification(id));
-  Future<void> clearAll() => _api.delete(ApiEndpoints.notifications);
+  Future<int> unreadCount() async {
+    final db = await AppDatabase.instance.database;
+    final rows = await db.rawQuery(
+        'SELECT COUNT(*) as c FROM notifications WHERE is_read = 0');
+    return (rows.first['c'] as int?) ?? 0;
+  }
+
+  Future<void> markRead(String id) async {
+    final db = await AppDatabase.instance.database;
+    await db.update('notifications', {'is_read': 1}, where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<void> markAllRead() async {
+    final db = await AppDatabase.instance.database;
+    await db.update('notifications', {'is_read': 1}, where: 'is_read = 0');
+  }
+
+  Future<void> remove(String id) async {
+    final db = await AppDatabase.instance.database;
+    await db.delete('notifications', where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<void> clearAll() async {
+    final db = await AppDatabase.instance.database;
+    await db.delete('notifications');
+  }
+
+  Map<String, dynamic> _toJson(Map<String, dynamic> row) => {
+        '_id': row['id'],
+        'type': row['type'],
+        'title': row['title'],
+        'body': row['body'],
+        'isRead': row['is_read'] == 1,
+        'createdAt': row['created_at'],
+      };
 }
 
 final notificationsProvider = FutureProvider<List<AppNotification>>(

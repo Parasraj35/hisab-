@@ -161,22 +161,51 @@ class TransactionRepository {
 
     final id = _uuid.v4();
     final now = DateTime.now().toUtc().toIso8601String();
-    await db.insert('transactions', {
-      'id': id,
-      'type': type,
-      'amount': amount,
-      'account_id': accountId,
-      'to_account_id': type == 'transfer' ? toAccountId : null,
-      'category_id': type == 'transfer' ? null : categoryId,
-      'date': date.toUtc().toIso8601String(),
-      'note': note,
-      'transfer_group': type == 'transfer' ? _uuid.v4() : null,
-      'created_at': now,
-      'updated_at': now,
+
+    // Insert + balance recompute run atomically so a rejected (would-go-
+    // negative) transaction never leaves a half-applied row behind.
+    await db.transaction((txn) async {
+      await txn.insert('transactions', {
+        'id': id,
+        'type': type,
+        'amount': amount,
+        'account_id': accountId,
+        'to_account_id': type == 'transfer' ? toAccountId : null,
+        'category_id': type == 'transfer' ? null : categoryId,
+        'date': date.toUtc().toIso8601String(),
+        'note': note,
+        'transfer_group': type == 'transfer' ? _uuid.v4() : null,
+        'created_at': now,
+        'updated_at': now,
+      });
+
+      await recomputeAccounts(txn, [accountId, toAccountId]);
     });
 
-    await recomputeAccounts(db, [accountId, toAccountId]);
+    if (type != 'transfer') {
+      await _pushNotification(db, type: type, amount: amount);
+    }
+
     return getOne(id);
+  }
+
+  Future<void> _pushNotification(
+      DatabaseExecutor db, {required String type, required double amount}) async {
+    final currencyRows = await db.query('profile', columns: ['currency'], limit: 1);
+    final currency =
+        currencyRows.isEmpty ? 'PKR' : (currencyRows.first['currency'] as String? ?? 'PKR');
+    final isExpense = type == 'expense';
+
+    await db.insert('notifications', {
+      'id': _uuid.v4(),
+      'type': type,
+      'title': isExpense ? 'Expense Added' : 'Income Added',
+      'body': 'You added a new ${isExpense ? 'expense' : 'income'} of '
+          '$currency ${amount.toStringAsFixed(2)}',
+      'is_read': 0,
+      'meta': '{}',
+      'created_at': DateTime.now().toUtc().toIso8601String(),
+    });
   }
 
   Future<TransactionItem> getOne(String id) async {
@@ -218,11 +247,15 @@ class TransactionRepository {
     }
     if (changes.containsKey('note')) columns['note'] = changes['note'];
 
-    await db.update('transactions', columns, where: 'id = ?', whereArgs: [id]);
+    // Update + balance recompute run atomically — the same "no half-applied
+    // row" guarantee as create().
+    await db.transaction((txn) async {
+      await txn.update('transactions', columns, where: 'id = ?', whereArgs: [id]);
 
-    // Recompute both the old and new accounts — an edit can move money
-    // between them (balance.service.js's recomputeAccounts call site).
-    await recomputeAccounts(db, [...previousAccounts, newAccountId, newToAccountId]);
+      // Recompute both the old and new accounts — an edit can move money
+      // between them (balance.service.js's recomputeAccounts call site).
+      await recomputeAccounts(txn, [...previousAccounts, newAccountId, newToAccountId]);
+    });
 
     return getOne(id);
   }
@@ -234,8 +267,10 @@ class TransactionRepository {
     final row = existing.first;
     final affected = [row['account_id'] as String?, row['to_account_id'] as String?];
 
-    await db.delete('transactions', where: 'id = ?', whereArgs: [id]);
-    await recomputeAccounts(db, affected);
+    await db.transaction((txn) async {
+      await txn.delete('transactions', where: 'id = ?', whereArgs: [id]);
+      await recomputeAccounts(txn, affected);
+    });
   }
 
   Future<void> _assertExists(

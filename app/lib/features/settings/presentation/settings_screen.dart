@@ -124,12 +124,6 @@ class SettingsScreen extends ConsumerWidget {
                 onTap: () => context.push('/notifications'),
               ),
               SettingsTile(
-                title: 'Backup & Restore',
-                icon: Icons.cloud_outlined,
-                iconColor: const Color(0xFF6366F1),
-                onTap: () => context.push('/backup'),
-              ),
-              SettingsTile(
                 title: 'Export Report',
                 icon: Icons.ios_share_rounded,
                 iconColor: AppColors.accent,

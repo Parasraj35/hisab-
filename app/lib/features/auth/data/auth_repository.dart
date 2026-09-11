@@ -1,5 +1,7 @@
+import 'package:bcrypt/bcrypt.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/local_db/app_database.dart';
+import '../../../core/network/api_exception.dart';
 import 'auth_models.dart';
 
 const _profileId = 'local';
@@ -7,8 +9,10 @@ const _profileId = 'local';
 final profileRepositoryProvider =
     Provider<ProfileRepository>((ref) => ProfileRepository());
 
-/// Backs the single local "profile" row — there is no account to log into,
-/// so this replaces what used to be a server-authenticated user record.
+/// Backs the single local "profile" row. There's no server to authenticate
+/// against, so "login" here just means: does this device know the phone +
+/// password that were set on it at signup. Only one profile row can ever
+/// exist — this is a single-user, single-device app.
 class ProfileRepository {
   Future<UserModel?> getUser() async {
     final db = await AppDatabase.instance.database;
@@ -17,10 +21,92 @@ class ProfileRepository {
     return UserModel.fromJson(_toJson(rows.first));
   }
 
-  /// Called once, from Profile Setup — creates the row if this is the first
-  /// launch, or updates it if the user is re-running setup. Always advances
-  /// onboarding past the "profile" stage, mirroring the old
-  /// PATCH /auth/profile-setup behaviour.
+  Future<bool> hasAccount() async {
+    final db = await AppDatabase.instance.database;
+    final rows = await db.query('profile', where: 'id = ?', whereArgs: [_profileId]);
+    return rows.isNotEmpty;
+  }
+
+  Future<bool> isLoggedIn() async {
+    final db = await AppDatabase.instance.database;
+    final rows = await db.query('profile',
+        columns: ['is_logged_in'], where: 'id = ?', whereArgs: [_profileId]);
+    if (rows.isEmpty) return false;
+    return rows.first['is_logged_in'] == 1;
+  }
+
+  /// Called from Sign Up — creates the one local account this device will
+  /// ever have. Mirrors the old POST /auth/register: hash the password,
+  /// create the row, start onboarding at "profile".
+  Future<UserModel> register({
+    required String phone,
+    required String password,
+  }) async {
+    final db = await AppDatabase.instance.database;
+    final existing = await db.query('profile', where: 'id = ?', whereArgs: [_profileId]);
+    if (existing.isNotEmpty) {
+      throw ApiException(
+          'An account already exists on this device. Please log in instead.');
+    }
+
+    final now = DateTime.now().toUtc().toIso8601String();
+    await db.insert('profile', {
+      'id': _profileId,
+      'phone': phone,
+      'password_hash': BCrypt.hashpw(password, BCrypt.gensalt()),
+      'is_logged_in': 1,
+      'onboarding_stage': 'profile',
+      'created_at': now,
+      'updated_at': now,
+    });
+
+    return (await getUser())!;
+  }
+
+  /// Called from Login — verifies the phone + password against the single
+  /// local account and marks this device "logged in" again.
+  Future<UserModel> login({
+    required String phone,
+    required String password,
+  }) async {
+    final db = await AppDatabase.instance.database;
+    final rows = await db.query('profile', where: 'id = ?', whereArgs: [_profileId]);
+    if (rows.isEmpty) {
+      throw ApiException('No account found on this device. Please sign up.');
+    }
+
+    final row = rows.first;
+    if ((row['phone'] as String? ?? '') != phone) {
+      throw ApiException('No account found for those details');
+    }
+    final hash = row['password_hash'] as String? ?? '';
+    if (hash.isEmpty || !BCrypt.checkpw(password, hash)) {
+      throw ApiException('Incorrect password');
+    }
+
+    await db.update(
+      'profile',
+      {'is_logged_in': 1, 'updated_at': DateTime.now().toUtc().toIso8601String()},
+      where: 'id = ?',
+      whereArgs: [_profileId],
+    );
+
+    return (await getUser())!;
+  }
+
+  Future<void> setLoggedOut() async {
+    final db = await AppDatabase.instance.database;
+    await db.update(
+      'profile',
+      {'is_logged_in': 0, 'updated_at': DateTime.now().toUtc().toIso8601String()},
+      where: 'id = ?',
+      whereArgs: [_profileId],
+    );
+  }
+
+  /// Called from Profile Setup — the row already exists (register() created
+  /// it), so this just fills in the rest and advances onboarding past
+  /// "profile", mirroring the old PATCH /auth/profile-setup behaviour.
   Future<UserModel> saveProfile({
     required String fullName,
     String? email,
@@ -32,12 +118,15 @@ class ProfileRepository {
     final existing = await db.query('profile', where: 'id = ?', whereArgs: [_profileId]);
 
     if (existing.isEmpty) {
+      // Defensive fallback only — in the normal flow register() always
+      // creates the row first.
       await db.insert('profile', {
         'id': _profileId,
         'full_name': fullName,
         'email': email ?? '',
         'phone': phone ?? '',
         'avatar_path': avatarPath ?? '',
+        'is_logged_in': 1,
         'onboarding_stage': 'account',
         'created_at': now,
         'updated_at': now,

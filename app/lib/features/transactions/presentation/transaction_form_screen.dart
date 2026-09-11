@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/ads/interstitial_ad_manager.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/clay.dart';
@@ -105,6 +106,8 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
       // Balances and recent activity both shift — refresh them together.
       ref.invalidate(dashboardOverviewProvider);
       ref.invalidate(accountsProvider);
+
+      InterstitialAdManager.instance.maybeShow();
 
       if (!mounted) return;
       showAppSnack(

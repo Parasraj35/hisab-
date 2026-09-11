@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/account_setup_screen.dart';
+import '../../features/auth/presentation/lock_screen.dart';
+import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/profile_setup_screen.dart';
+import '../../features/auth/presentation/signup_screen.dart';
 import '../../features/accounts/presentation/accounts_screen.dart';
 import '../../features/dashboard/dashboard_screen.dart';
 import '../../features/accounts/presentation/account_detail_screen.dart';
@@ -10,7 +13,6 @@ import '../../features/categories/presentation/categories_screen.dart';
 import '../../features/debts/presentation/debts_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
 import '../../features/search/presentation/search_screen.dart';
-import '../../features/settings/presentation/backup_screen.dart';
 import '../../features/settings/presentation/help_screen.dart';
 import '../../features/settings/presentation/profile_screen.dart';
 import '../../features/settings/presentation/security_screen.dart';
@@ -42,6 +44,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     refreshListenable: refresh,
     routes: [
       GoRoute(path: '/', builder: (_, __) => const SplashScreen()),
+      GoRoute(path: '/lock', builder: (_, __) => const LockScreen()),
+      GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
+      GoRoute(path: '/signup', builder: (_, __) => const SignupScreen()),
       GoRoute(
           path: '/profile-setup',
           builder: (_, __) => const ProfileSetupScreen()),
@@ -83,7 +88,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           builder: (_, __) => const NotificationsScreen()),
       GoRoute(path: '/settings', builder: (_, __) => const SettingsScreen()),
       GoRoute(path: '/search', builder: (_, __) => const SearchScreen()),
-      GoRoute(path: '/backup', builder: (_, __) => const BackupScreen()),
       GoRoute(path: '/security', builder: (_, __) => const SecurityScreen()),
       GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
       GoRoute(
@@ -93,19 +97,39 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     errorBuilder: (_, state) =>
         const ComingSoonScreen(title: 'Not found', batch: 'a later batch'),
     redirect: (context, state) {
-      final status = ref.read(authControllerProvider).status;
+      final auth = ref.read(authControllerProvider);
+      final status = auth.status;
       final loc = state.matchedLocation;
 
       // Splash owns the "unknown" state until restoreSession() resolves.
       if (status == AuthStatus.unknown) return loc == '/' ? null : '/';
 
+      // Takes priority over everything else while authenticated — App Lock
+      // being on means every route is gated behind the lock screen until
+      // AuthController.unlock() clears it.
+      if (status == AuthStatus.authenticated && auth.isLocked) {
+        return loc == '/lock' ? null : '/lock';
+      }
+      if (loc == '/lock' && !(status == AuthStatus.authenticated && auth.isLocked)) {
+        return '/dashboard';
+      }
+
       switch (status) {
+        case AuthStatus.unauthenticated:
+          const publicRoutes = {'/login', '/signup'};
+          return publicRoutes.contains(loc) ? null : '/login';
         case AuthStatus.needsProfile:
           return loc == '/profile-setup' ? null : '/profile-setup';
         case AuthStatus.needsAccount:
           return loc == '/account-setup' ? null : '/account-setup';
         case AuthStatus.authenticated:
-          const gatedRoutes = {'/', '/profile-setup', '/account-setup'};
+          const gatedRoutes = {
+            '/',
+            '/login',
+            '/signup',
+            '/profile-setup',
+            '/account-setup',
+          };
           return gatedRoutes.contains(loc) ? '/dashboard' : null;
         case AuthStatus.unknown:
           return null;

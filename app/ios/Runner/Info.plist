@@ -7,6 +7,13 @@
 	<!-- AdMob App ID (HISAB, iOS). -->
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-2955087757761518~8930047887</string>
+	<!-- Required by image_picker (profile photo) and local_auth (Face ID
+	     unlock) — iOS hard-crashes the app on first use of either feature
+	     without these, it's not just an App Store review requirement. -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>HISAB needs access to your photos so you can set a profile picture.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>HISAB uses Face ID to unlock the app when App Lock is turned on.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
