@@ -94,6 +94,26 @@ class ProfileRepository {
     return (await getUser())!;
   }
 
+  /// Called from Forgot Password, after the PIN/biometric check already
+  /// proved identity — unlike changePassword() (Security screen), this
+  /// intentionally doesn't need the old password, since not knowing it is
+  /// the whole reason this flow exists.
+  Future<void> resetPasswordWithoutOldPassword(String newPassword) async {
+    final db = await AppDatabase.instance.database;
+    final existing = await db.query('profile', where: 'id = ?', whereArgs: [_profileId]);
+    if (existing.isEmpty) throw ApiException('No account found on this device');
+
+    await db.update(
+      'profile',
+      {
+        'password_hash': BCrypt.hashpw(newPassword, BCrypt.gensalt()),
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      },
+      where: 'id = ?',
+      whereArgs: [_profileId],
+    );
+  }
+
   Future<void> setLoggedOut() async {
     final db = await AppDatabase.instance.database;
     await db.update(

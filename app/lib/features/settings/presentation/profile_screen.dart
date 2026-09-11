@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/utils/app_version.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/utils/local_files.dart';
 import '../../../core/utils/validators.dart';
@@ -164,9 +165,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 iconColor: const Color(0xFF8B5CF6),
                 onTap: () => context.push('/help'),
               ),
-              const SettingsTile(
+              SettingsTile(
                 title: 'About HISAB',
-                subtitle: 'Version 1.0.0',
+                subtitle: 'Version ${ref.watch(appVersionProvider).valueOrNull ?? '—'}',
                 icon: Icons.info_outline_rounded,
                 showDivider: false,
                 onTap: null,

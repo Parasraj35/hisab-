@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../../core/constants.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/clay.dart';
+import '../../../core/utils/app_version.dart';
 import '../../../shared/widgets/app_snackbar.dart';
 import '../../../shared/widgets/settings_tile.dart';
 
 /// Screen 25 — Help / Support
-class HelpScreen extends StatelessWidget {
+class HelpScreen extends ConsumerWidget {
   const HelpScreen({super.key});
 
   static const _faqs = [
@@ -33,20 +37,24 @@ class HelpScreen extends StatelessWidget {
           'to what is outstanding. The record shows a progress bar until it is settled.'
     ),
     (
-      'How do backups work?',
-      'A backup snapshots your accounts, categories, transactions, debts and goals. '
-          'HISAB keeps your 10 most recent. Restoring takes a safety snapshot first, '
-          'so it can be undone.'
+      'Is my data private?',
+      'HISAB has no server — your accounts, transactions and profile are stored only '
+          'in a local database on this device, and never uploaded anywhere. Your '
+          'password and PIN are hashed, and you can add app lock or biometric unlock '
+          'under Security. See the full Privacy Policy below for exactly what the '
+          'ads and crash-reporting SDKs collect.'
     ),
     (
-      'Is my data private?',
-      'Your data is tied to your account and never shared. Passwords and PINs are '
-          'hashed, and you can add app lock or biometric unlock under Security.'
+      'What happens if I uninstall or reset the app?',
+      'All local data is erased — there is no cloud backup to restore from. That is '
+          'a deliberate trade-off for keeping your financial data off any server, so '
+          'make sure you export a report first if you want a copy of your history.'
     ),
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final version = ref.watch(appVersionProvider).valueOrNull;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -130,41 +138,60 @@ class HelpScreen extends StatelessWidget {
             children: [
               SettingsTile(
                 title: 'Contact Support',
+                subtitle: kSupportEmail,
                 icon: Icons.mail_outline_rounded,
                 iconColor: const Color(0xFF3B82F6),
-                onTap: () =>
-                    showAppSnack(context, 'Email support@hisab.app for help'),
+                onTap: () => _launchMail(context, subject: 'HISAB support'),
               ),
               SettingsTile(
                 title: 'Report a Problem',
                 icon: Icons.bug_report_outlined,
                 iconColor: AppColors.expense,
-                onTap: () => showAppSnack(
-                    context, 'Thanks — describe the issue in an email'),
+                onTap: () => _launchMail(context, subject: 'HISAB bug report'),
               ),
               SettingsTile(
                 title: 'Suggest a Feature',
                 icon: Icons.lightbulb_outline_rounded,
                 iconColor: AppColors.warning,
-                onTap: () => showAppSnack(context, 'We would love to hear it'),
+                onTap: () =>
+                    _launchMail(context, subject: 'HISAB feature suggestion'),
               ),
               SettingsTile(
-                title: 'Rate HISAB',
-                icon: Icons.star_outline_rounded,
-                iconColor: const Color(0xFFEAB308),
+                title: 'Privacy Policy',
+                icon: Icons.privacy_tip_outlined,
+                iconColor: AppColors.forest,
                 showDivider: false,
-                onTap: () =>
-                    showAppSnack(context, 'Opens your app store listing'),
+                onTap: () => _launchUrl(context, kPrivacyPolicyUrl),
               ),
             ],
           ),
           const SizedBox(height: AppSpacing.xxl),
           Center(
-            child: Text('HISAB v1.0.0',
+            child: Text('HISAB v${version ?? '—'}',
                 style: Theme.of(context).textTheme.labelSmall),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _launchMail(BuildContext context, {required String subject}) async {
+    final uri = Uri(
+      scheme: 'mailto',
+      path: kSupportEmail,
+      query: 'subject=${Uri.encodeComponent(subject)}',
+    );
+    final ok = await launchUrl(uri);
+    if (!ok && context.mounted) {
+      showAppSnack(context, 'No email app found — reach us at $kSupportEmail',
+          isError: true);
+    }
+  }
+
+  Future<void> _launchUrl(BuildContext context, String url) async {
+    final ok = await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    if (!ok && context.mounted) {
+      showAppSnack(context, 'Could not open the link', isError: true);
+    }
   }
 }

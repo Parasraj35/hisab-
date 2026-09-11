@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/account_setup_screen.dart';
+import '../../features/auth/presentation/forgot_password_screen.dart';
 import '../../features/auth/presentation/lock_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/profile_setup_screen.dart';
@@ -47,6 +48,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/lock', builder: (_, __) => const LockScreen()),
       GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
       GoRoute(path: '/signup', builder: (_, __) => const SignupScreen()),
+      GoRoute(
+          path: '/forgot-password',
+          builder: (_, __) => const ForgotPasswordScreen()),
       GoRoute(
           path: '/profile-setup',
           builder: (_, __) => const ProfileSetupScreen()),
@@ -116,7 +120,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
       switch (status) {
         case AuthStatus.unauthenticated:
-          const publicRoutes = {'/login', '/signup'};
+          const publicRoutes = {'/login', '/signup', '/forgot-password'};
           return publicRoutes.contains(loc) ? null : '/login';
         case AuthStatus.needsProfile:
           return loc == '/profile-setup' ? null : '/profile-setup';

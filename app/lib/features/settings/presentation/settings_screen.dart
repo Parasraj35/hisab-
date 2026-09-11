@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/utils/app_version.dart';
 import '../../../shared/widgets/app_bottom_nav.dart';
 import '../../../shared/widgets/app_snackbar.dart';
 import '../../../shared/widgets/settings_tile.dart';
@@ -154,9 +155,9 @@ class SettingsScreen extends ConsumerWidget {
                 iconColor: const Color(0xFF8B5CF6),
                 onTap: () => context.push('/help'),
               ),
-              const SettingsTile(
+              SettingsTile(
                 title: 'About HISAB',
-                subtitle: 'Version 1.0.0',
+                subtitle: 'Version ${ref.watch(appVersionProvider).valueOrNull ?? '—'}',
                 icon: Icons.info_outline_rounded,
                 showDivider: false,
               ),
